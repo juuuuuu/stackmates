@@ -10,3 +10,6 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# Le gitignore global exclut .github/ ; ce projet en a besoin pour la CI.
+!.github/

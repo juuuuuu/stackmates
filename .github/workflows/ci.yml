@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.7.2"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "gdtoolkit==4.*"
+      - run: gdlint sim net ui levels tools tests main.gd
+      - run: gdformat --check sim net ui levels tools tests main.gd
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-bin
+      - run: bash tools/install_godot.sh ~/godot-bin
+      - run: GODOT=~/godot-bin/godot bash tools/test.sh
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-bin
+      - run: bash tools/install_godot.sh ~/godot-bin
+      - run: GODOT=~/godot-bin/godot bash tools/smoke.sh
+
+  export:
+    needs: [lint, test, smoke]
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: ~/godot-bin
+          key: godot-${{ env.GODOT_VERSION }}-bin
+      - run: bash tools/install_godot.sh ~/godot-bin --templates
+      - run: GODOT=~/godot-bin/godot bash tools/export_all.sh
+      - name: Package
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          mkdir -p dist
+          (cd export/linux && zip -q "../../dist/stackmates-${TAG}-linux.zip" stackmates.x86_64)
+          (cd export/windows && zip -q "../../dist/stackmates-${TAG}-windows.zip" stackmates.exe)
+          cp export/macos/stackmates.zip "dist/stackmates-${TAG}-macos.zip"
+          ls -l dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stackmates-${{ github.ref_name }}
+          path: dist/*.zip
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.zip --generate-notes
