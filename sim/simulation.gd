@@ -121,7 +121,9 @@ func _move_y(player: PlayerState, dy: float) -> void:
 		player.on_ground = false
 		return
 	if dy > 0.0:
-		var bottom_edge: float = player.position.y + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
+		var bottom_edge: float = (
+			player.position.y + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
+		)
 		var tile_y: int = floori(bottom_edge / SimConstants.TILE_SIZE)
 		player.position.y = tile_y * SimConstants.TILE_SIZE - SimConstants.PLAYER_SIZE
 		player.on_ground = true

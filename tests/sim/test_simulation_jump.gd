@@ -43,14 +43,16 @@ func test_jump_rise_is_between_two_and_three_tiles() -> void:
 
 
 func test_can_climb_two_tile_ledge() -> void:
-	var sim: Simulation = _sim([
-		"......#",
-		"......#",
-		"......#",
-		"....###",
-		"...S###",
-		"#######",
-	])
+	var sim: Simulation = _sim(
+		[
+			"......#",
+			"......#",
+			"......#",
+			"....###",
+			"...S###",
+			"#######",
+		]
+	)
 	sim.add_player(1)
 	_run(sim, 1, 0, 5)
 	_run(sim, 1, InputBits.JUMP | InputBits.RIGHT, 90)
@@ -59,14 +61,16 @@ func test_can_climb_two_tile_ledge() -> void:
 
 
 func test_cannot_climb_three_tile_ledge() -> void:
-	var sim: Simulation = _sim([
-		"......#",
-		"......#",
-		"....###",
-		"....###",
-		"...S###",
-		"#######",
-	])
+	var sim: Simulation = _sim(
+		[
+			"......#",
+			"......#",
+			"....###",
+			"....###",
+			"...S###",
+			"#######",
+		]
+	)
 	sim.add_player(1)
 	_run(sim, 1, 0, 5)
 	_run(sim, 1, InputBits.JUMP | InputBits.RIGHT, 120)
