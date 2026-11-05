@@ -31,7 +31,8 @@ géant, chrono, score, vies.
 
 - Joueur de 1 tuile sur 1 (16x16 px). Une `stack` de 8 tient dans l'écran.
 - Vitesse de course : 6 tuiles par seconde.
-- Saut à hauteur fixe de 2,5 tuiles : on monte sur une tête, pas sur deux.
+- Saut à hauteur fixe de 2,5 tuiles : un rebord de 2 tuiles passe seul, un rebord
+  de 3 tuiles demande une `stack`.
 - Gravité réglée pour 0,5 s de vol.
 - `Coyote time` de 4 `ticks`, `jump buffer` de 4 `ticks`.
 - Pas de saut à hauteur variable, pas de double saut.
