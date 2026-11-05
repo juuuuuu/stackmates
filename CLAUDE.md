@@ -17,6 +17,10 @@ joueurs, `host-authoritative`.
   erreurs dans `project.godot`.
 - Une mécanique se construit en TDD avec GUT : test rouge dans `tests/`, puis le
   code dans `sim/` ou `net/`.
+- Tests : `godot --headless --path . --import` une fois après un ajout de
+  fichier, puis `godot --headless --path . -s addons/gut/gut_cmdln.gd -gexit`
+  (exit 0 si vert, 1 sinon). Sans `--import` préalable, GUT ne trouve pas ses
+  classes et sort en 0 sans rien lancer.
 
 ## Workflow
 
