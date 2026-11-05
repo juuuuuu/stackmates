@@ -1,0 +1,12 @@
+# Godot
+.godot/
+/android/
+/export/
+
+# Python (tools/)
+__pycache__/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
