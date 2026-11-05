@@ -1,0 +1,15 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/tiles.png" id="1_l70by"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ylah7"]
+texture = ExtResource("1_l70by")
+0:0/0 = 0
+0:0/0/custom_data_0 = "solid"
+1:0/0 = 0
+1:0/0/custom_data_0 = "spike"
+
+[resource]
+custom_data_layer_0/name = "kind"
+custom_data_layer_0/type = 4
+sources/0 = SubResource("TileSetAtlasSource_ylah7")
