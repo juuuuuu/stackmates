@@ -1,0 +1,49 @@
+extends GutTest
+
+const MAIN_SCENE: PackedScene = preload("res://main.tscn")
+const TEST_PORT: int = 28017
+
+
+func _main() -> Main:
+	var main: Main = MAIN_SCENE.instantiate()
+	main.settings_path = "user://test_main_flow_settings.cfg"
+	return add_child_autofree(main)
+
+
+func _press(main: Node, action: String) -> void:
+	var event: InputEventAction = InputEventAction.new()
+	event.action = action
+	event.pressed = true
+	main.get_viewport().push_input(event)
+
+
+func test_starts_on_menu() -> void:
+	var main: Main = _main()
+	assert_eq(main.state, main.State.MENU)
+	assert_not_null(main.screen_root.get_node_or_null("MainMenu"))
+
+
+func test_host_then_cancel_returns_to_menu() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	assert_eq(main.state, main.State.LOBBY)
+	var lobby: Lobby = main.screen_root.get_node("Lobby")
+	assert_eq(lobby.row_count(), 1)
+	assert_true(lobby.start_button.visible)
+	_press(main, "ui_cancel")
+	assert_eq(main.state, main.State.MENU)
+	assert_false(main.session.is_host)
+
+
+func test_host_start_shows_world_with_one_player() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested()
+	assert_eq(main.state, main.State.PLAYING)
+	# En headless, _process ne tourne qu'après deux signaux process_frame.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var view: WorldView = main.screen_root.get_node("WorldView")
+	assert_eq(view.sprite_count(), 1)
+	_press(main, "ui_cancel")
+	assert_eq(main.state, main.State.MENU)
