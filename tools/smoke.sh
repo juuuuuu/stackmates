@@ -4,10 +4,13 @@ set -u
 GODOT="${GODOT:-godot}"
 PORT="${PORT:-28015}"
 LOG_DIR="${STACKMATES_SMOKE_LOG_DIR:-/tmp}"
-"$GODOT" --headless --path . -- --host --port="$PORT" --name=Host --smoke > "$LOG_DIR/smoke_host.log" 2>&1 &
+# Un binaire exporté embarque le projet : pas de --path.
+PROJECT_ARGS=(--path .)
+if [ -n "${STACKMATES_EXPORTED:-}" ]; then PROJECT_ARGS=(); fi
+"$GODOT" --headless "${PROJECT_ARGS[@]}" -- --host --port="$PORT" --name=Host --smoke > "$LOG_DIR/smoke_host.log" 2>&1 &
 HOST_PID=$!
 sleep 2
-"$GODOT" --headless --path . -- --join=127.0.0.1:"$PORT" --name=Guest --smoke > "$LOG_DIR/smoke_client.log" 2>&1
+"$GODOT" --headless "${PROJECT_ARGS[@]}" -- --join=127.0.0.1:"$PORT" --name=Guest --smoke > "$LOG_DIR/smoke_client.log" 2>&1
 CLIENT_CODE=$?
 wait "$HOST_PID"
 HOST_CODE=$?
