@@ -63,7 +63,9 @@ func _spawn_position(slot: int) -> Vector2:
 
 
 func _step_player(player: PlayerState, input: int) -> void:
-	var jump_pressed: bool = (input & InputBits.JUMP) != 0 and (player.previous_input & InputBits.JUMP) == 0
+	var jump_held: bool = (input & InputBits.JUMP) != 0
+	var jump_was_held: bool = (player.previous_input & InputBits.JUMP) != 0
+	var jump_pressed: bool = jump_held and not jump_was_held
 	if jump_pressed:
 		player.jump_buffer_ticks_left = SimConstants.JUMP_BUFFER_TICKS
 	elif player.jump_buffer_ticks_left > 0:
