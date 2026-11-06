@@ -7,6 +7,8 @@ Join,Join,Rejoindre
 Options,Options,Options
 Quit,Quit,Quitter
 Enter a name,Enter a name,Entre un pseudo
+Invalid port,Invalid port,Port invalide
+Player %d,Player %d,Joueur %d
 Lobby,Lobby,Salon
 Waiting for players...,Waiting for players...,En attente de joueurs...
 Connecting...,Connecting...,Connexion...

@@ -58,3 +58,10 @@ func test_add_same_peer_twice_is_refused() -> void:
 	assert_eq(r.add(50, "A again"), -1)
 	assert_eq(r.size(), 1)
 	assert_eq(r.name_of(1), "A")
+
+
+func test_validate_refuses_control_characters() -> void:
+	var roster: Roster = Roster.new()
+	for bad: String in ["Ju\n", "a\tb", "x\u007fy"]:
+		assert_eq(roster.validate_join(3, 3, bad, false), Roster.REASON_BAD_NAME, bad)
+	assert_eq(roster.validate_join(3, 3, "Ju Lo", false), "")

@@ -38,3 +38,23 @@ func test_empty_name_is_refused_with_error() -> void:
 
 func test_name_field_is_limited_to_twelve_characters() -> void:
 	assert_eq(_menu().name_field.max_length, 12)
+
+
+func test_invalid_port_is_refused_with_error() -> void:
+	var menu: MainMenu = _menu()
+	menu.name_field.text = "Ju"
+	menu.port_field.text = "abc"
+	menu._on_host_pressed()
+	assert_signal_not_emitted(menu, "host_requested")
+	assert_eq(menu.error_label.text, "Invalid port")
+	menu.port_field.text = "70000"
+	menu._on_join_pressed()
+	assert_signal_not_emitted(menu, "join_requested")
+
+
+func test_empty_port_uses_default() -> void:
+	var menu: MainMenu = _menu()
+	menu.name_field.text = "Ju"
+	menu.port_field.text = ""
+	menu._on_host_pressed()
+	assert_signal_emitted_with_parameters(menu, "host_requested", [Session.DEFAULT_PORT, "Ju"])

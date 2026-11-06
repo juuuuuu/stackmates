@@ -26,7 +26,18 @@ func validate_join(
 		return REASON_FULL
 	if player_name.is_empty() or player_name.length() > MAX_NAME_LENGTH:
 		return REASON_BAD_NAME
+	if has_control_character(player_name):
+		return REASON_BAD_NAME
 	return ""
+
+
+## Vrai si le texte contient un caractère de code < 32 ou 127 (saut de ligne,
+## tabulation, DEL) : il casserait une ligne de log ou un label.
+static func has_control_character(text: String) -> bool:
+	for code: int in text.to_utf32_buffer().to_int32_array():
+		if code < 32 or code == 127:
+			return true
+	return false
 
 
 ## Donne le plus petit slot libre, ou -1 si la session est pleine ou si le
@@ -65,11 +76,11 @@ func peer_of(slot: int) -> int:
 	return -1
 
 
-## Le pseudo du slot, ou "Player N" s'il n'est plus dans le roster.
+## Le pseudo du slot, ou "Player N" (traduit) s'il n'est plus dans le roster.
 func name_of(slot: int) -> String:
 	if _names.has(slot):
 		return _names[slot]
-	return "Player %d" % slot
+	return tr("Player %d") % slot
 
 
 func slots() -> Array[int]:

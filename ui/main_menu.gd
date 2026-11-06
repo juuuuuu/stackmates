@@ -7,6 +7,8 @@ signal join_requested(address: String, port: int, player_name: String)
 signal options_requested
 
 const ERROR_EMPTY_NAME: String = "Enter a name"
+const ERROR_INVALID_PORT: String = "Invalid port"
+const PORT_MAX: int = 65535
 
 @onready var name_field: LineEdit = %NameField
 @onready var address_field: LineEdit = %AddressField
@@ -39,9 +41,25 @@ func show_error(text: String) -> void:
 	error_label.text = text
 
 
+## Le port saisi : 28015 si le champ est vide, 0 (refus) s'il n'est pas un
+## entier de 1 à 65535.
 func _port() -> int:
-	var value: int = port_field.text.to_int()
-	return value if value > 0 else Session.DEFAULT_PORT
+	var text: String = port_field.text.strip_edges()
+	if text.is_empty():
+		return Session.DEFAULT_PORT
+	if not text.is_valid_int():
+		return 0
+	var value: int = text.to_int()
+	return value if value >= 1 and value <= PORT_MAX else 0
+
+
+## Le port validé, ou 0 avec un message d'erreur affiché.
+func _valid_port() -> int:
+	var port: int = _port()
+	if port == 0:
+		show_error(tr(ERROR_INVALID_PORT))
+		port_field.grab_focus()
+	return port
 
 
 ## Le pseudo nettoyé, ou vide avec un message d'erreur affiché.
@@ -55,11 +73,17 @@ func _player_name() -> String:
 
 func _on_host_pressed() -> void:
 	var player_name: String = _player_name()
-	if not player_name.is_empty():
-		host_requested.emit(_port(), player_name)
+	if player_name.is_empty():
+		return
+	var port: int = _valid_port()
+	if port != 0:
+		host_requested.emit(port, player_name)
 
 
 func _on_join_pressed() -> void:
 	var player_name: String = _player_name()
-	if not player_name.is_empty():
-		join_requested.emit(address_field.text.strip_edges(), _port(), player_name)
+	if player_name.is_empty():
+		return
+	var port: int = _valid_port()
+	if port != 0:
+		join_requested.emit(address_field.text.strip_edges(), port, player_name)

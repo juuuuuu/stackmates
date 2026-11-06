@@ -21,3 +21,8 @@ func test_unknown_locale_falls_back_to_english() -> void:
 	var menu: MainMenu = add_child_autofree(MAIN_MENU_SCENE.instantiate())
 	assert_eq(menu.host_button.atr(menu.host_button.text), "Host")
 	assert_eq(tr("Game is full"), "Game is full")
+
+
+func test_player_fallback_name_is_translated() -> void:
+	TranslationServer.set_locale("fr")
+	assert_eq(Roster.new().name_of(3), "Joueur 3")
