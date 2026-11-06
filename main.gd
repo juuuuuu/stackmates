@@ -29,6 +29,13 @@ const EXIT_OK: int = 0
 const EXIT_FAILED: int = 1
 const EXIT_TIMEOUT: int = 2
 const DEFAULT_PLAYER_NAME: String = "Player"
+const REASON_TEXTS: Dictionary[String, String] = {
+	Roster.REASON_FULL: "Game is full",
+	Roster.REASON_IN_PROGRESS: "Game in progress",
+	Roster.REASON_BAD_NAME: "Invalid name",
+	Session.REASON_TIMEOUT: "Timed out",
+	Session.REASON_REFUSED: "Connection refused",
+}
 
 var state: State = State.MENU
 ## Les bandeaux de la partie ; null hors partie.
@@ -120,24 +127,15 @@ static func _arg(args: Dictionary[String, String], key: String, fallback: String
 	return fallback
 
 
-## Le texte lisible d'une raison de refus ou d'échec de connexion.
-static func _reason_text(reason: String) -> String:
+## Le texte lisible, traduit, d'une raison de refus ou d'échec de connexion.
+func _reason_text(reason: String) -> String:
 	if reason.begins_with(Roster.REASON_VERSION):
 		var parts: PackedStringArray = reason.split(":")
 		if parts.size() == 3:
-			return "Version mismatch (you: %s, host: %s)" % [parts[1], parts[2]]
-		return "Version mismatch"
-	match reason:
-		Roster.REASON_FULL:
-			return "Game is full"
-		Roster.REASON_IN_PROGRESS:
-			return "Game in progress"
-		Roster.REASON_BAD_NAME:
-			return "Invalid name"
-		Session.REASON_TIMEOUT:
-			return "Timed out"
-		Session.REASON_REFUSED:
-			return "Connection refused"
+			return tr("Version mismatch (you: %s, host: %s)") % [parts[1], parts[2]]
+		return tr("Version mismatch")
+	if REASON_TEXTS.has(reason):
+		return tr(REASON_TEXTS[reason])
 	return reason
 
 
@@ -233,25 +231,25 @@ func _on_join_requested(address: String, port: int, player_name: String) -> void
 func _start_host(port: int, player_name: String) -> void:
 	var error: Error = session.host(port, player_name)
 	if error != OK:
-		_fail_or_menu("Cannot host on port %d (%s)" % [port, error_string(error)])
+		_fail_or_menu(tr("Cannot host on port %d (%s)") % [port, error_string(error)])
 		return
 	state = State.LOBBY
-	_show_lobby(STATUS_WAITING_PLAYERS)
+	_show_lobby(tr(STATUS_WAITING_PLAYERS))
 
 
 func _start_join(address: String, port: int, player_name: String) -> void:
 	var error: Error = session.join(address, port, player_name)
 	if error != OK:
-		_fail_or_menu("Cannot connect (%s)" % error_string(error))
+		_fail_or_menu(tr("Cannot connect (%s)") % error_string(error))
 		return
 	state = State.CONNECTING
-	_show_lobby(STATUS_CONNECTING)
+	_show_lobby(tr(STATUS_CONNECTING))
 
 
 func _on_joined(_slot: int) -> void:
 	state = State.LOBBY
 	if _lobby != null:
-		_lobby.set_status(STATUS_WAITING_HOST)
+		_lobby.set_status(tr(STATUS_WAITING_HOST))
 
 
 func _on_join_failed(reason: String) -> void:
@@ -262,7 +260,7 @@ func _on_host_left() -> void:
 	if _smoke:
 		_quit_with(EXIT_FAILED, "host left")
 		return
-	_leave_to_menu(ERROR_HOST_LEFT)
+	_leave_to_menu(tr(ERROR_HOST_LEFT))
 
 
 func _on_roster_changed(roster: Dictionary) -> void:
@@ -313,9 +311,10 @@ func _on_level_event(kind: int, slot: int) -> void:
 			if hud.banner_text().is_empty():
 				_death_names.clear()
 			_death_names.append(session.roster.name_of(slot))
-			hud.show_banner("%s died" % " and ".join(_death_names), BANNER_DEATH_SEC)
+			var names: String = (" " + tr("and") + " ").join(_death_names)
+			hud.show_banner(tr("%s died") % names, BANNER_DEATH_SEC)
 		SimEvent.Kind.LEVEL_CLEAR:
-			hud.show_banner(BANNER_LEVEL_CLEAR, BANNER_CLEAR_SEC)
+			hud.show_banner(tr(BANNER_LEVEL_CLEAR), BANNER_CLEAR_SEC)
 
 
 func _on_game_finished() -> void:
@@ -336,7 +335,7 @@ func _on_victory_back() -> void:
 	if state != State.VICTORY:
 		return
 	state = State.LOBBY
-	_show_lobby(STATUS_LEVEL_CLEAR)
+	_show_lobby(tr(STATUS_LEVEL_CLEAR))
 
 
 ## En smoke : quitte avec le code d'échec. Sinon : retour au menu avec le message.

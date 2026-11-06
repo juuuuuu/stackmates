@@ -43,7 +43,7 @@ func _port() -> int:
 func _player_name() -> String:
 	var player_name: String = name_field.text.strip_edges()
 	if player_name.is_empty():
-		show_error(ERROR_EMPTY_NAME)
+		show_error(tr(ERROR_EMPTY_NAME))
 		name_field.grab_focus()
 	return player_name
 

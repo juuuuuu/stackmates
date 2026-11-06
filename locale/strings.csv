@@ -1,0 +1,46 @@
+keys,en,fr
+Name,Name,Pseudo
+Host address,Host address,Adresse du host
+Port,Port,Port
+Host,Host,Héberger
+Join,Join,Rejoindre
+Options,Options,Options
+Quit,Quit,Quitter
+Enter a name,Enter a name,Entre un pseudo
+Lobby,Lobby,Salon
+Waiting for players...,Waiting for players...,En attente de joueurs...
+Connecting...,Connecting...,Connexion...
+Waiting for the host to start,Waiting for the host to start,En attente du host
+Level %d,Level %d,Niveau %d
+Start,Start,Démarrer
+Leave,Leave,Quitter
+Level clear,Level clear,Niveau terminé
+Level clear!,Level clear!,Niveau terminé !
+%s died,%s died,%s est mort
+and,and,et
+Victory!,Victory!,Victoire !
+Back to lobby,Back to lobby,Retour au salon
+You,You,Toi
+Resume,Resume,Reprendre
+Leave game,Leave game,Quitter la partie
+Music,Music,Musique
+Sound effects,Sound effects,Effets sonores
+Fullscreen,Fullscreen,Plein écran
+Back,Back,Retour
+Connection refused,Connection refused,Connexion refusée
+"Version mismatch (you: %s, host: %s)","Version mismatch (you: %s, host: %s)","Versions différentes (toi : %s, host : %s)"
+Version mismatch,Version mismatch,Versions différentes
+Game is full,Game is full,Partie pleine
+Game in progress,Game in progress,Partie en cours
+Invalid name,Invalid name,Pseudo invalide
+Timed out,Timed out,Délai dépassé
+Host left,Host left,Le host est parti
+Cannot host on port %d (%s),Cannot host on port %d (%s),Impossible d'héberger sur le port %d (%s)
+Cannot connect (%s),Cannot connect (%s),Connexion impossible (%s)
+Local IP,Local IP,IP locale
+Public IP,Public IP,IP publique
+unknown,unknown,inconnue
+Copy,Copy,Copier
+UPnP: opening the port...,UPnP: opening the port...,UPnP : ouverture du port...
+UPnP: port opened,UPnP: port opened,UPnP : port ouvert
+UPnP: failed. Open UDP port %d on your router.,UPnP: failed. Open UDP port %d on your router.,UPnP : échec. Ouvre le port UDP %d sur ta box.

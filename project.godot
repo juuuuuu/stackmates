@@ -48,6 +48,11 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://locale/strings.en.translation", "res://locale/strings.fr.translation")
+locale/fallback="en"
+
 [input]
 
 move_left={

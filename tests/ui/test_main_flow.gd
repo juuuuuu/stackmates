@@ -4,6 +4,11 @@ const MAIN_SCENE: PackedScene = preload("res://main.tscn")
 const TEST_PORT: int = 28017
 
 
+## Les textes attendus sont en anglais, quelle que soit la langue de la machine.
+func before_each() -> void:
+	TranslationServer.set_locale("en")
+
+
 func _main() -> Main:
 	var main: Main = MAIN_SCENE.instantiate()
 	main.settings_path = "user://test_main_flow_settings.cfg"
@@ -69,6 +74,10 @@ func test_death_event_shows_name_in_banner() -> void:
 	main._on_start_requested(0)
 	main._on_level_event(SimEvent.Kind.DEATH, 1)
 	assert_eq(main.hud.banner_text(), "Ju died")
+	TranslationServer.set_locale("fr")
+	main._on_level_event(SimEvent.Kind.DEATH, 1)
+	TranslationServer.set_locale("en")
+	assert_eq(main.hud.banner_text(), "Ju et Ju est mort")
 	_press(main, "ui_cancel")
 
 

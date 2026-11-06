@@ -27,7 +27,7 @@ func set_status(text: String) -> void:
 func set_level_count(count: int) -> void:
 	level_select.clear()
 	for i: int in count:
-		level_select.add_item("Level %d" % (i + 1), i)
+		level_select.add_item(tr("Level %d") % (i + 1), i)
 	if count > 0:
 		level_select.select(0)
 
