@@ -58,6 +58,7 @@ func host(port: int, player_name: String) -> Error:
 	in_progress = false
 	roster = Roster.new()
 	local_slot = roster.add(HOST_PEER_ID, player_name)
+	GameLog.info("net", "host on port %d as %s" % [port, player_name])
 	roster_changed.emit(roster.to_dict())
 	return OK
 
@@ -76,6 +77,7 @@ func join(address: String, port: int, player_name: String) -> Error:
 	roster = Roster.new()
 	_joining = true
 	_join_attempt += 1
+	GameLog.info("net", "join %s:%d as %s" % [address, port, player_name])
 	var timer: SceneTreeTimer = get_tree().create_timer(CONNECT_TIMEOUT_SEC)
 	timer.timeout.connect(_on_join_timeout.bind(_join_attempt))
 	return OK
@@ -125,7 +127,9 @@ func peer_of_slot(slot: int) -> int:
 func _on_peer_disconnected(peer_id: int) -> void:
 	if not is_host:
 		return
-	if roster.remove_peer(peer_id) != -1:
+	var slot: int = roster.remove_peer(peer_id)
+	if slot != -1:
+		GameLog.info("net", "slot %d left (peer %d)" % [slot, peer_id])
 		_broadcast_roster()
 
 
@@ -134,6 +138,7 @@ func _on_connected_to_server() -> void:
 
 
 func _on_connection_failed() -> void:
+	GameLog.info("net", "connection failed")
 	_fail(REASON_REFUSED)
 
 
@@ -141,14 +146,17 @@ func _on_server_disconnected() -> void:
 	var was_joining: bool = _joining
 	leave()
 	if was_joining:
+		GameLog.info("net", "refused while joining")
 		join_failed.emit(REASON_REFUSED)
 	else:
+		GameLog.info("net", "host left")
 		host_left.emit()
 
 
 ## Le timer d'une tentative abandonnée (leave puis nouveau join) est ignoré.
 func _on_join_timeout(attempt: int) -> void:
 	if _joining and attempt == _join_attempt:
+		GameLog.info("net", "join timed out")
 		_fail(REASON_TIMEOUT)
 
 
@@ -175,11 +183,13 @@ func _request_join(protocol_version: int, player_name: String) -> void:
 	)
 	if reason.is_empty():
 		var slot: int = roster.add(peer_id, player_name)
+		GameLog.info("net", "%s joined (slot %d, peer %d)" % [player_name, slot, peer_id])
 		_join_accepted.rpc_id(peer_id, slot, roster.to_dict())
 		_broadcast_roster()
 		return
 	if reason == Roster.REASON_VERSION:
 		reason = "%s:%d:%d" % [reason, protocol_version, PROTOCOL_VERSION]
+	GameLog.info("net", "%s refused (%s)" % [player_name, reason])
 	_join_refused.rpc_id(peer_id, reason)
 	_peer.disconnect_peer(peer_id, false)
 
@@ -206,11 +216,13 @@ func _roster_changed(roster_dict: Dictionary) -> void:
 
 @rpc("authority", "call_local", "reliable")
 func _game_started(level_index: int) -> void:
+	GameLog.info("net", "game started, level %d" % level_index)
 	in_progress = true
 	game_started.emit(level_index)
 
 
 @rpc("authority", "call_local", "reliable")
 func _game_finished() -> void:
+	GameLog.info("net", "game finished")
 	in_progress = false
 	game_finished.emit()

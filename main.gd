@@ -350,6 +350,7 @@ func _on_join_requested(address: String, port: int, player_name: String) -> void
 func _start_host(port: int, player_name: String) -> void:
 	var error: Error = session.host(port, player_name)
 	if error != OK:
+		GameLog.info("net", "host failed on port %d: %s" % [port, error_string(error)])
 		_fail_or_menu(tr("Cannot host on port %d (%s)") % [port, error_string(error)])
 		return
 	state = State.LOBBY
@@ -360,6 +361,7 @@ func _start_host(port: int, player_name: String) -> void:
 func _start_join(address: String, port: int, player_name: String) -> void:
 	var error: Error = session.join(address, port, player_name)
 	if error != OK:
+		GameLog.info("net", "join failed: %s" % error_string(error))
 		_fail_or_menu(tr("Cannot connect (%s)") % error_string(error))
 		return
 	state = State.CONNECTING
@@ -416,6 +418,7 @@ func _on_game_started(level_index: int) -> void:
 
 ## Host : niveau suivant s'il existe, sinon fin de partie.
 func _on_level_finished() -> void:
+	GameLog.info("game", "level %d finished" % _level_index)
 	var next_index: int = _level_index + 1
 	if next_index < LevelList.PATHS.size():
 		session.start_game(next_index)
@@ -447,6 +450,7 @@ func _on_level_event(kind: int, slot: int) -> void:
 
 
 func _on_game_finished() -> void:
+	GameLog.info("game", "victory")
 	game_sync.stop()
 	state = State.VICTORY
 	_show_victory()
@@ -536,11 +540,13 @@ func _stop_network_probes() -> void:
 
 
 func _on_public_ip_resolved(address: String) -> void:
+	GameLog.info("net", "public ip %s" % address)
 	_public_ip = address
 	_refresh_network_info()
 
 
-func _on_upnp_finished(_ok: bool, message: String) -> void:
+func _on_upnp_finished(ok: bool, message: String) -> void:
+	GameLog.info("net", "upnp %s on port %d" % ["ok" if ok else "failed", _host_port])
 	_upnp_status = message
 	_refresh_network_info()
 
