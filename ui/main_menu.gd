@@ -14,6 +14,7 @@ const ERROR_EMPTY_NAME: String = "Enter a name"
 @onready var host_button: Button = %HostButton
 @onready var join_button: Button = %JoinButton
 @onready var options_button: Button = %OptionsButton
+@onready var quit_button: Button = %QuitButton
 @onready var error_label: Label = %ErrorLabel
 @onready var version_label: Label = %VersionLabel
 
@@ -22,6 +23,7 @@ func _ready() -> void:
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
 	options_button.pressed.connect(options_requested.emit)
+	quit_button.pressed.connect(get_tree().quit)
 	var version: String = str(ProjectSettings.get_setting("application/config/version", ""))
 	version_label.text = "v" + version
 	name_field.grab_focus()

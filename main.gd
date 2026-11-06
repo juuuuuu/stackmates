@@ -12,6 +12,7 @@ const WORLD_VIEW_SCENE: PackedScene = preload("res://ui/world_view.tscn")
 const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
 const VICTORY_SCENE: PackedScene = preload("res://ui/victory.tscn")
 const OPTIONS_SCENE: PackedScene = preload("res://ui/options.tscn")
+const PAUSE_MENU_SCENE: PackedScene = preload("res://ui/pause_menu.tscn")
 const BANNER_DEATH_SEC: float = 1.0
 const BANNER_CLEAR_SEC: float = 1.5
 const BANNER_LEVEL_CLEAR: String = "Level clear"
@@ -41,6 +42,8 @@ const REASON_TEXTS: Dictionary[String, String] = {
 var state: State = State.MENU
 ## Les bandeaux de la partie ; null hors partie.
 var hud: Hud
+## Le menu Échap ; null quand il est fermé.
+var pause_menu: PauseMenu
 ## Le fichier de réglages ; les tests le redirigent avant d'ajouter la scène.
 var settings_path: String = SettingsStore.DEFAULT_PATH
 
@@ -70,6 +73,7 @@ func _ready() -> void:
 	audio.set_sfx_volume(_settings.sfx_volume)
 	_set_fullscreen(_settings.fullscreen)
 	game_sync.session = session
+	game_sync.local_input_source = _read_local_input
 	session.joined.connect(_on_joined)
 	session.join_failed.connect(_on_join_failed)
 	session.roster_changed.connect(_on_roster_changed)
@@ -108,8 +112,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_fullscreen"):
 		_toggle_fullscreen()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("ui_cancel") and state != State.MENU:
-		_leave_to_menu("")
+	elif event.is_action_pressed("ui_cancel"):
+		_on_cancel_pressed()
 		get_viewport().set_input_as_handled()
 
 
@@ -162,6 +166,7 @@ func _show_menu(error_text: String) -> void:
 
 
 func _show_lobby(status: String) -> void:
+	_close_pause_menu()
 	_clear_hud()
 	audio.stop_music()
 	_world_view = null
@@ -200,9 +205,62 @@ func _replace_screen(scene: PackedScene) -> Node:
 
 
 func _leave_to_menu(error_text: String) -> void:
+	_close_pause_menu()
 	game_sync.stop()
 	session.leave()
 	_show_menu(error_text)
+
+
+## Échap : en partie, ouvre ou ferme le menu ; dans les options, revient au
+## menu ; ailleurs hors menu principal, quitte la session.
+func _on_cancel_pressed() -> void:
+	match state:
+		State.MENU:
+			pass
+		State.PLAYING:
+			if pause_menu == null:
+				_open_pause_menu()
+			else:
+				_close_pause_menu()
+		State.OPTIONS:
+			_on_options_closed()
+		_:
+			_leave_to_menu("")
+
+
+## Vrai quand le menu Échap est ouvert : le player local n'envoie plus rien.
+func is_input_blocked() -> bool:
+	return pause_menu != null
+
+
+func _read_local_input() -> int:
+	if is_input_blocked():
+		return 0
+	return InputReader.read_bits()
+
+
+func _open_pause_menu() -> void:
+	pause_menu = PAUSE_MENU_SCENE.instantiate()
+	pause_menu.resume_requested.connect(_on_pause_resume)
+	pause_menu.leave_requested.connect(_on_pause_leave)
+	add_child(pause_menu)
+
+
+func _close_pause_menu() -> void:
+	if pause_menu == null:
+		return
+	remove_child(pause_menu)
+	pause_menu.queue_free()
+	pause_menu = null
+
+
+func _on_pause_resume() -> void:
+	_close_pause_menu()
+
+
+func _on_pause_leave() -> void:
+	_close_pause_menu()
+	_leave_to_menu("")
 
 
 func _toggle_fullscreen() -> void:

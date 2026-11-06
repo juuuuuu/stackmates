@@ -12,7 +12,7 @@ const ATLAS_KEY: int = 2
 const ATLAS_DOOR_CLOSED: int = 3
 const ATLAS_DOOR_OPEN: int = 4
 const LOCAL_MARKER_SEC: float = 3.0
-const LOCAL_MARKER_OFFSET: Vector2 = Vector2(-4, -14)
+const LOCAL_MARKER_OFFSET: Vector2 = Vector2(-6, -20)
 
 var _sprites: Dictionary[int, Sprite2D] = {}
 var _level: Level

@@ -139,7 +139,8 @@ func test_events_play_sounds_and_music_follows_the_game() -> void:
 	assert_eq(main.audio.last_played, "jump")
 	main._on_level_event(SimEvent.Kind.KEY_TAKEN, 1)
 	assert_eq(main.audio.last_played, "key")
-	main._leave_to_menu("")
+	_press(main, "ui_cancel")
+	main._on_pause_leave()
 	assert_false(main.audio.is_music_playing())
 
 
@@ -148,3 +149,27 @@ func test_level_event_outside_game_is_ignored() -> void:
 	main._on_level_event(SimEvent.Kind.JUMP, 1)
 	assert_eq(main.state, main.State.MENU)
 	assert_eq(main.audio.last_played, "")
+
+
+func test_escape_toggles_pause_menu() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	_press(main, "ui_cancel")
+	assert_eq(main.state, main.State.PLAYING)
+	assert_not_null(main.pause_menu)
+	assert_true(main.is_input_blocked())
+	assert_eq(main.game_sync.local_input_source.call(), 0)
+	_press(main, "ui_cancel")
+	assert_null(main.pause_menu)
+	assert_false(main.is_input_blocked())
+	_press(main, "ui_cancel")
+	main._on_pause_leave()
+	assert_eq(main.state, main.State.MENU)
+
+
+func test_escape_in_lobby_leaves() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	_press(main, "ui_cancel")
+	assert_eq(main.state, main.State.MENU)

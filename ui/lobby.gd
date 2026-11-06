@@ -6,6 +6,8 @@ extends Control
 signal start_requested(level_index: int)
 signal leave_requested
 
+var _focus_placed: bool = false
+
 @onready var status_label: Label = %StatusLabel
 @onready var player_list: VBoxContainer = %PlayerList
 @onready var level_select: OptionButton = %LevelSelect
@@ -51,8 +53,9 @@ func set_roster(roster: Dictionary, is_host: bool) -> void:
 		player_list.add_child(label)
 	start_button.visible = is_host
 	level_select.visible = is_host
-	if is_host:
+	if is_host and not _focus_placed:
 		start_button.grab_focus()
+		_focus_placed = true
 
 
 func row_count() -> int:
