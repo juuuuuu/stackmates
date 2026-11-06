@@ -153,9 +153,11 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 
 ## Niveaux
 
-- Une scène Godot par niveau, dessinée avec `TileMapLayer` dans l'éditeur.
-- Chaque tuile porte un `custom data` : `solid`, `spike` ou vide.
-- Des `Marker2D` posent les spawns, la clé et la porte.
+- Un niveau s'écrit en texte dans `levels/src/level_NN.txt` (40 colonnes sur
+  22 lignes : `#` solid, `^` spike, `S` spawn, `K` key, `D` door) et
+  `tools/build_levels.gd` en construit la scène Godot (`TileMapLayer` avec un
+  `custom data` `solid` ou `spike`, `Marker2D` pour les spawns, la clé et la
+  porte). La scène reste éditable dans l'éditeur.
 - Au chargement, le `sim core` lit la grille et les markers.
 - Pas d'outil externe (LDtk, Tiled).
 - Cinq niveaux conçus par l'agent, playtestés par le développeur : 1 marche et
@@ -222,8 +224,8 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 ## Jalons
 
 Livrés : jalon 0 (`v0.0.1`, 2026-11-06), jalon 1 (`v0.1.0`, 2026-11-06),
-jalon 2a (cinq niveaux, choix du niveau, écran de victoire, sur `main`,
-2026-11-06). Le jalon 2b (lobby réseau, audio, options, traduction) suit.
+jalon 2 (`v0.2.0`, 2026-11-06 : cinq niveaux, choix du niveau, écran de
+victoire, lobby réseau, audio, options, menu Échap, traduction).
 
 - Jalon 0 : `sim core` minimal (marche, saut, collision tuiles), transport
   réseau, lobby minimal, un niveau vide, exports des trois plateformes en CI.

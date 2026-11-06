@@ -4,9 +4,9 @@ Jeu de plateforme coopératif en ligne pour 2 à 8 joueurs, inspiré des mécani
 de Pico Park. Un joueur héberge, les autres rejoignent via Internet. Windows,
 Linux, macOS.
 
-État : jalon 2a atteint (cinq niveaux, choix du niveau, écran de victoire).
-Le lobby réseau complet, l'audio, les options et la traduction arrivent au
-jalon 2b. Voir `docs/design.md`.
+État : jalon 2 atteint (cinq niveaux, lobby complet, sons et musique,
+options, menu Échap, interface en anglais et en français). Voir
+`docs/design.md`.
 
 ## Jouer
 
@@ -20,8 +20,10 @@ jalon 2b. Voir `docs/design.md`.
      clic droit sur l'application puis « Ouvrir », ou dans un terminal :
      `xattr -dr com.apple.quarantine Stackmates.app`.
 3. Héberger : entrer un pseudo, un port (28015 par défaut), cliquer sur Host.
-   Ouvrir ce port en UDP sur sa box vers son ordinateur (port forwarding) et
-   partager son IP publique avec les autres joueurs. Sur un réseau local,
+   Le lobby affiche l'IP locale, l'IP publique et l'état de l'ouverture du
+   port par `UPnP` (bouton Copier à côté de chaque IP). Si l'`UPnP` échoue,
+   ouvrir ce port en UDP sur sa box vers son ordinateur (port forwarding).
+   Partager l'IP publique avec les autres joueurs ; sur un réseau local,
    l'IP locale suffit.
 4. Rejoindre : entrer un pseudo, l'adresse du `host` et le port, cliquer sur
    Join. Le `host` choisit le niveau de départ et lance la partie avec Start.
@@ -30,7 +32,10 @@ jalon 2b. Voir `docs/design.md`.
    à sauter, 4 un couloir trop bas pour sauter où l'on se pousse, 5 tout à la
    fois.
 5. Commandes : flèches ou WASD (ZQSD en AZERTY) pour bouger, Espace ou flèche
-   haut pour sauter, F11 pour le plein écran, Échap pour quitter la partie.
+   haut pour sauter, F11 pour le plein écran, Échap pour le menu de pause
+   (reprendre ou quitter la partie). Les volumes de la musique et des effets
+   et le plein écran se règlent dans Options, depuis le menu principal.
+   L'interface suit la langue du système : anglais, ou français.
 6. Règles : ramasser la clé et l'amener à la porte pour l'ouvrir, puis tout
    le monde doit entrer. Un joueur au sol pousse ceux qu'il touche, en
    chaîne. On monte sur la tête des autres et on les suit : à deux on passe
@@ -53,7 +58,10 @@ jalon 2b. Voir `docs/design.md`.
 - Niveaux : éditer `levels/src/level_NN.txt` puis
   `godot --headless --path . -s tools/build_levels.gd`, ou éditer la scène
   `levels/level_NN.tscn` dans l'éditeur.
-- Assets placeholders : `python3 -I tools/gen_assets.py`.
+- Assets placeholders : `python3 -I tools/gen_assets.py` (images) et
+  `python3 -I tools/gen_audio.py` (sons et musique).
+- Traductions : `locale/strings.csv` (clés en anglais, colonne `fr`), importé
+  par Godot.
 - CI : lint, tests et smoke à chaque push sur `main` ; exports et release
   GitHub sur chaque tag `v*`.
 
