@@ -68,3 +68,16 @@ func test_player_left_during_death_banner_restarts_once() -> void:
 		sync._host_tick(0)
 	assert_signal_emit_count(sync, "level_restarted", 1)
 	sync.stop()
+
+
+func test_god_slot_carries_over_to_the_next_level_and_stops_with_the_game() -> void:
+	var session: Session = add_child_autofree(Session.new())
+	var sync: GameSync = add_child_autofree(GameSync.new())
+	sync.session = session
+	sync.start_as_host(Level.from_rows(["S..", "###"]), [1])
+	sync.set_god_slot(1)
+	assert_eq(sync.simulation.god_slot, 1)
+	sync.start_as_host(Level.from_rows(["S...", "####"]), [1])
+	assert_eq(sync.simulation.god_slot, 1)
+	sync.stop()
+	assert_eq(sync.god_slot, Simulation.NO_SLOT)

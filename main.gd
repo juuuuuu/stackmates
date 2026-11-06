@@ -135,6 +135,15 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		_on_cancel_pressed()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("test_mode_toggle"):
+		_toggle_test_mode()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("test_next_level"):
+		_skip_level(1)
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("test_previous_level"):
+		_skip_level(-1)
+		get_viewport().set_input_as_handled()
 
 
 static func _parse_args(raw: PackedStringArray) -> Dictionary[String, String]:
@@ -429,6 +438,26 @@ func _on_game_started(level_index: int) -> void:
 	state = State.PLAYING
 	_show_world()
 	audio.start_music()
+
+
+## Mode test, host seulement (F3) : son player saute en l'air et ne meurt pas.
+func _toggle_test_mode() -> void:
+	if state != State.PLAYING or not session.is_host or hud == null:
+		return
+	var enabled: bool = game_sync.god_slot == Simulation.NO_SLOT
+	game_sync.set_god_slot(session.local_slot if enabled else Simulation.NO_SLOT)
+	hud.set_test_mode(enabled)
+	GameLog.info("game", "test mode %s" % ("on" if enabled else "off"))
+
+
+## Mode test, host seulement (F2, F1) : niveau suivant ou précédent, sans le finir.
+func _skip_level(delta: int) -> void:
+	if state != State.PLAYING or not session.is_host:
+		return
+	var target: int = _level_index + delta
+	if target >= 0 and target < LevelList.count():
+		GameLog.info("game", "test mode: level %d" % target)
+		session.start_game(target)
 
 
 ## Host : niveau suivant s'il existe, sinon fin de partie.

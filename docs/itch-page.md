@@ -44,6 +44,8 @@ Enter a name, the host's address and port, then click Join. Wait for the host to
 
 Arrow keys or WASD (ZQSD on AZERTY) to move, Space or Up to jump, F11 for fullscreen, Escape for the pause menu (resume or leave). Music and sound volumes and fullscreen are in Options on the main menu. The interface follows your system language: English or French.
 
+Host-only test mode: F3 toggles it (a "TEST MODE" badge shows), the host's player can jump again in mid-air and respawns instead of dying; F2 and F1 skip to the next or previous level. Guests keep the normal rules.
+
 ### Reporting a problem
 
 Open an issue at https://github.com/juuuuuu/stackmates/issues and attach `godot.log` from the logs folder:

@@ -213,3 +213,35 @@ func test_pause_menu_blocks_movement_input() -> void:
 	assert_eq(released_bits, InputBits.RIGHT, "libéré")
 	Input.action_release("move_right")
 	main._on_pause_leave()
+
+
+func test_f3_toggles_test_mode_for_the_host() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	_press(main, "test_mode_toggle")
+	assert_eq(main.game_sync.simulation.god_slot, main.session.local_slot)
+	assert_true(main.hud.test_mode_visible())
+	_press(main, "test_mode_toggle")
+	assert_eq(main.game_sync.simulation.god_slot, Simulation.NO_SLOT)
+	assert_false(main.hud.test_mode_visible())
+	main._on_pause_leave()
+
+
+func test_f2_and_f1_change_level_for_the_host_only() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	_press(main, "test_next_level")
+	assert_eq(main._level_index, 1)
+	_press(main, "test_previous_level")
+	assert_eq(main._level_index, 0)
+	_press(main, "test_previous_level")
+	assert_eq(main._level_index, 0, "pas de niveau avant le premier")
+	main.session.is_host = false
+	_press(main, "test_next_level")
+	_press(main, "test_mode_toggle")
+	assert_eq(main._level_index, 0, "un client ne change pas de niveau")
+	assert_eq(main.game_sync.simulation.god_slot, Simulation.NO_SLOT)
+	main.session.is_host = true
+	main._on_pause_leave()

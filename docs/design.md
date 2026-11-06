@@ -79,6 +79,10 @@ géant, chrono, score, vies.
 - Fenêtre 1280x720 par défaut, redimensionnable. Plein écran activable (F11 et
   options). 1080p couvert à l'échelle x3 exacte, 1440p à x4.
 - Niveaux sur un seul écran, caméra fixe, pas de scrolling.
+- Mode test, `host` seulement : F3 l'active (badge « MODE TEST ») ; son player
+  saute à nouveau en l'air et revient au spawn au lieu de mourir ; F2 et F1
+  changent de niveau sans le finir. Les invités gardent les règles normales ;
+  rien ne change dans le `snapshot` ni le protocole. Coupé au retour au lobby.
 - Renderer `Compatibility` (OpenGL 3).
 - Touches fixes en v1. Clavier : flèches ou touches physiques WASD (donc ZQSD en
   AZERTY) pour bouger, Espace ou flèche haut pour sauter. Manette : stick gauche

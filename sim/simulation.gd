@@ -3,11 +3,16 @@ extends RefCounted
 ## Le sim core : fait avancer tous les players d'un tick sur un level.
 ## Aucune dépendance aux nodes. Le host est le seul à l'exécuter.
 
+const NO_SLOT: int = -1
+
 var level: Level
 var tick: int = 0
 var players: Array[PlayerState] = []
 ## Gelée après une mort ou un level clear, jusqu'au restart.
 var halted: bool = false
+## Mode test du host : le player de ce slot saute à nouveau en l'air et revient
+## à son spawn au lieu de mourir. NO_SLOT : règles normales pour tous.
+var god_slot: int = NO_SLOT
 ## Slot du key carrier, 0 si personne ne porte la key.
 var key_carrier: int = 0
 ## La key a quitté sa tile (portée, ou consommée par la door).
@@ -157,7 +162,7 @@ func _apply_vertical_intent(player: PlayerState, input: int) -> void:
 		player.jump_buffer_ticks_left = SimConstants.JUMP_BUFFER_TICKS
 	if player.on_ground:
 		player.coyote_ticks_left = SimConstants.COYOTE_TICKS
-	var can_jump: bool = player.on_ground or player.coyote_ticks_left > 0
+	var can_jump: bool = player.on_ground or player.coyote_ticks_left > 0 or player.slot == god_slot
 	if player.jump_buffer_ticks_left > 0 and can_jump:
 		player.velocity.y = -SimConstants.JUMP_SPEED
 		player.jump_buffer_ticks_left = 0
@@ -287,11 +292,22 @@ func _apply_deaths(active: Array[PlayerState]) -> bool:
 	var bottom: float = level.grid.height * SimConstants.TILE_SIZE
 	for player: PlayerState in active:
 		var on_spike: bool = level.grid.overlaps_spike(player.rect())
-		if on_spike or player.position.y >= bottom:
-			player.dead = true
-			_events.append(SimEvent.make(SimEvent.Kind.DEATH, player.slot))
-			any_death = true
+		if not on_spike and player.position.y < bottom:
+			continue
+		if player.slot == god_slot:
+			_respawn(player)
+			continue
+		player.dead = true
+		_events.append(SimEvent.make(SimEvent.Kind.DEATH, player.slot))
+		any_death = true
 	return any_death
+
+
+## Mode test : retour au spawn, sans mort, sans événement, sans redémarrage.
+func _respawn(player: PlayerState) -> void:
+	player.position = _spawn_position(player.slot)
+	player.velocity = Vector2.ZERO
+	player.on_ground = false
 
 
 ## Ramassage de la key, ouverture de la door par le porteur, entrée des players.

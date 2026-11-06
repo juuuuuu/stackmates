@@ -42,6 +42,10 @@ tolérants, CI robuste). Voir `docs/design.md`.
    (reprendre ou quitter la partie). Les volumes de la musique et des effets
    et le plein écran se règlent dans Options, depuis le menu principal.
    L'interface suit la langue du système : anglais, ou français.
+   Mode test, pour le `host` seulement : F3 l'active (badge « MODE TEST »),
+   son joueur saute en l'air à volonté et ne meurt pas (retour au spawn) ;
+   F2 et F1 passent au niveau suivant ou précédent. Les invités gardent les
+   règles normales.
 6. Règles : ramasser la clé et l'amener à la porte pour l'ouvrir, puis tout
    le monde doit entrer. Un joueur au sol pousse ceux qu'il touche, en
    chaîne. On monte sur la tête des autres et on les suit : à deux on passe

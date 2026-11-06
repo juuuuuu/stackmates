@@ -19,6 +19,8 @@ var buffer: SnapshotBuffer
 var snapshots_sent: int = 0
 var inputs_received: int = 0
 var local_input_source: Callable = InputReader.read_bits
+## Mode test du host, conservé d'un niveau à l'autre, coupé avec la partie.
+var god_slot: int = Simulation.NO_SLOT
 
 var _running: bool = false
 var _clock: RenderClock
@@ -33,6 +35,7 @@ func start_as_host(level: Level, slots: Array[int]) -> void:
 	simulation.tick = previous_tick
 	for slot: int in slots:
 		simulation.add_player(slot)
+	simulation.god_slot = god_slot
 	director = LevelDirector.new()
 	buffer = null
 	snapshots_sent = 0
@@ -53,9 +56,16 @@ func start_as_client() -> void:
 
 func stop() -> void:
 	_running = false
+	god_slot = Simulation.NO_SLOT
 	simulation = null
 	director = null
 	buffer = null
+
+
+func set_god_slot(slot: int) -> void:
+	god_slot = slot
+	if simulation != null:
+		simulation.god_slot = slot
 
 
 ## L'état à afficher maintenant. Host : la simulation telle quelle. Client :

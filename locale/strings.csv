@@ -8,6 +8,7 @@ Options,Options,Options
 Quit,Quit,Quitter
 Enter a name,Enter a name,Entre un pseudo
 Invalid port,Invalid port,Port invalide
+TEST MODE,TEST MODE,MODE TEST
 Player %d,Player %d,Joueur %d
 Lobby,Lobby,Salon
 Waiting for players...,Waiting for players...,En attente de joueurs...
