@@ -24,6 +24,9 @@ joueurs, `host-authoritative`.
   en 0 sans rien lancer si l'import manque ou si un test ne parse pas.
 - Smoke réseau : `bash tools/smoke.sh`. Avec un binaire exporté :
   `STACKMATES_EXPORTED=1 GODOT=export/linux/stackmates.x86_64 bash tools/smoke.sh`.
+- Publication itch.io : `tools/publish_itch.sh`, variable `ITCH_TARGET` et
+  secret `BUTLER_API_KEY` sur le dépôt ; la release GitHub ne dépend pas
+  d'itch.io.
 
 ## Workflow
 

@@ -11,8 +11,8 @@ options, menu Échap, interface en anglais et en français). Voir
 ## Jouer
 
 1. Télécharger le zip de sa plateforme dans les
-   [releases GitHub](https://github.com/juuuuuu/stackmates/releases), le
-   décompresser et lancer le jeu.
+   [releases GitHub](https://github.com/juuuuuu/stackmates/releases) ou sur
+   itch.io (page en préparation), le décompresser et lancer le jeu.
 2. Les builds ne sont pas signés (aucun compte développeur payant) :
    - Windows : SmartScreen affiche un avertissement, cliquer sur
      « Informations complémentaires » puis « Exécuter quand même ».
@@ -24,7 +24,11 @@ options, menu Échap, interface en anglais et en français). Voir
    port par `UPnP` (bouton Copier à côté de chaque IP). Si l'`UPnP` échoue,
    ouvrir ce port en UDP sur sa box vers son ordinateur (port forwarding).
    Partager l'IP publique avec les autres joueurs ; sur un réseau local,
-   l'IP locale suffit.
+   l'IP locale suffit. Si le port ne peut pas s'ouvrir (CGNAT, 4G, réseau
+   d'entreprise) : un VPN gratuit entre amis, [Tailscale](https://tailscale.com)
+   ou [ZeroTier](https://www.zerotier.com). Chacun l'installe et rejoint le
+   même réseau ; le `host` donne son IP du VPN (`100.x.y.z` chez Tailscale,
+   lue avec `tailscale ip -4`) et personne n'ouvre de port.
 4. Rejoindre : entrer un pseudo, l'adresse du `host` et le port, cliquer sur
    Join. Le `host` choisit le niveau de départ et lance la partie avec Start.
    Les cinq niveaux s'enchaînent jusqu'à l'écran de victoire : 1 marche et
@@ -41,6 +45,12 @@ options, menu Échap, interface en anglais et en français). Voir
    chaîne. On monte sur la tête des autres et on les suit : à deux on passe
    un rebord de trois tuiles qu'un saut seul ne passe pas. Toucher un pique
    ou tomber hors du niveau fait recommencer le niveau pour tout le monde.
+7. Signaler un problème : ouvrir une
+   [issue GitHub](https://github.com/juuuuuu/stackmates/issues) en joignant
+   le fichier `godot.log` du dossier des logs : `%APPDATA%\Stackmates\logs\`
+   (Windows), `~/.local/share/Stackmates/logs/` (Linux),
+   `~/Library/Application Support/Stackmates/logs/` (macOS). Le jeu y note
+   l'heure de chaque connexion, départ et erreur réseau.
 
 ## Développer
 
@@ -62,8 +72,12 @@ options, menu Échap, interface en anglais et en français). Voir
   `python3 -I tools/gen_audio.py` (sons et musique).
 - Traductions : `locale/strings.csv` (clés en anglais, colonne `fr`), importé
   par Godot.
-- CI : lint, tests et smoke à chaque push sur `main` ; exports et release
-  GitHub sur chaque tag `v*`.
+- CI : lint (gdlint, gdformat, `tools/check_typography.sh`,
+  `tools/publish_itch_test.sh`), tests et smoke à chaque push sur `main` ;
+  exports et release GitHub sur chaque tag `v*`, puis publication itch.io par
+  `tools/publish_itch.sh` si la variable `ITCH_TARGET` et le secret
+  `BUTLER_API_KEY` existent sur le dépôt (`bash tools/itch_setup.sh` les
+  crée). La release GitHub ne dépend pas d'itch.io.
 
 ## Documentation
 
@@ -73,4 +87,5 @@ options, menu Échap, interface en anglais et en français). Voir
 
 ## Licence
 
-Code sous licence MIT (voir `LICENSE`). Les assets gardent leur licence propre.
+Code sous licence MIT (voir `LICENSE`). Les assets sont générés par les
+scripts de `tools/`, sous la même licence.

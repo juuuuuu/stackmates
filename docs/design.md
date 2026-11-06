@@ -81,8 +81,9 @@ géant, chrono, score, vies.
   ou croix, bouton A. Pas de rebinding en v1.
 - Échap ouvre un menu en surimpression (reprendre, quitter la partie) sans mettre
   la simulation en pause.
-- Interface en nodes `Control`, thème minimal (police pixel CC0, quelques
-  couleurs), navigable au clavier et à la manette. Pas de souris obligatoire.
+- Interface en nodes `Control`, thème minimal (police par défaut de Godot,
+  quelques couleurs), navigable au clavier et à la manette. Pas de souris
+  obligatoire.
 
 ## Simulation
 
@@ -173,8 +174,9 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 - Tuiles : aplats unis (sol, `spike` triangulaire, clé, porte fermée et ouverte).
 - PNG générés par un script Python (Pillow) commité dans `tools/`, donc
   reproductibles et remplaçables par du vrai pixel art.
-- Effets sonores CC0 : saut, mort, clé, porte, victoire. Une boucle musicale CC0.
-  Deux curseurs de volume dans les options.
+- Effets sonores (saut, mort, clé, porte, victoire) et boucle musicale générés
+  par `tools/gen_audio.py` : des placeholders remplaçables. Deux curseurs de
+  volume dans les options.
 
 ## Qualité et tests
 
@@ -196,7 +198,7 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   `levels/`, `assets/`, `tests/`, `tools/`.
 - Dépôt GitHub public `juuuuuu/stackmates`. Le dossier local reste
   `/home/ju/dev/pico`.
-- Licence MIT pour le code. Les assets gardent leur licence (CC0).
+- Licence MIT pour le code. Les assets générés sont sous la même licence.
 - Commits directs sur `main`, pas de PR, pas de branche de fonctionnalité.
 - Messages de commit : préfixe Conventional Commits en anglais (`feat:`, `fix:`,
   `test:`, `docs:`, `ci:`, `chore:`), sujet en français.

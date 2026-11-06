@@ -4,7 +4,6 @@
 Mono, 16 bits, 22050 Hz. Usage : python3 -I tools/gen_audio.py
 """
 
-import math
 import struct
 import wave
 from pathlib import Path
