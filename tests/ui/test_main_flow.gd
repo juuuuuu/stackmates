@@ -12,6 +12,7 @@ func before_each() -> void:
 func _main() -> Main:
 	var main: Main = MAIN_SCENE.instantiate()
 	main.settings_path = "user://test_main_flow_settings.cfg"
+	main.network_probes_enabled = false
 	return add_child_autofree(main)
 
 
@@ -51,6 +52,7 @@ func test_host_start_shows_world_with_one_player() -> void:
 	var view: WorldView = main.screen_root.get_node("WorldView")
 	assert_eq(view.sprite_count(), 1)
 	_press(main, "ui_cancel")
+	main._on_pause_leave()
 	assert_eq(main.state, main.State.MENU)
 
 
@@ -159,7 +161,8 @@ func test_escape_toggles_pause_menu() -> void:
 	assert_eq(main.state, main.State.PLAYING)
 	assert_not_null(main.pause_menu)
 	assert_true(main.is_input_blocked())
-	assert_eq(main.game_sync.local_input_source.call(), 0)
+	var bits: int = main.game_sync.local_input_source.call()
+	assert_eq(bits, 0)
 	_press(main, "ui_cancel")
 	assert_null(main.pause_menu)
 	assert_false(main.is_input_blocked())
