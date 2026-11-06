@@ -93,6 +93,9 @@ func _ready() -> void:
 	game_sync.snapshot_received.connect(_on_snapshot_received)
 	game_sync.level_finished.connect(_on_level_finished)
 	game_sync.level_event.connect(_on_level_event)
+	_upnp_opener = UpnpOpener.new()
+	_upnp_opener.finished.connect(_on_upnp_finished)
+	add_child(_upnp_opener)
 	if _smoke:
 		game_sync.local_input_source = func() -> int: return InputBits.RIGHT
 		var timer: SceneTreeTimer = get_tree().create_timer(SMOKE_TIMEOUT_SEC)
@@ -529,19 +532,16 @@ func _start_network_probes(port: int) -> void:
 	_public_ip_probe.failed.connect(_on_public_ip_failed)
 	add_child(_public_ip_probe)
 	_public_ip_probe.start()
-	_upnp_opener = UpnpOpener.new()
-	_upnp_opener.finished.connect(_on_upnp_finished)
-	add_child(_upnp_opener)
 	_upnp_opener.open(port)
 
 
+## Ferme le mapping UPnP (sans attendre) et arrête la sonde d'IP publique.
 func _stop_network_probes() -> void:
-	for probe: Node in [_public_ip_probe, _upnp_opener]:
-		if probe != null:
-			remove_child(probe)
-			probe.queue_free()
-	_public_ip_probe = null
-	_upnp_opener = null
+	_upnp_opener.close()
+	if _public_ip_probe != null:
+		remove_child(_public_ip_probe)
+		_public_ip_probe.queue_free()
+		_public_ip_probe = null
 
 
 func _on_public_ip_resolved(address: String) -> void:
