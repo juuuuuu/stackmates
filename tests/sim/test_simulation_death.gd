@@ -26,7 +26,7 @@ func test_spike_kills_and_halts() -> void:
 	var sim: Simulation = _sim(["S^.S", "####"])
 	sim.add_player(1)
 	sim.add_player(2)
-	_run(sim, 1, InputBits.RIGHT, 2)
+	_run(sim, 1, InputBits.RIGHT, 4)
 	assert_true(sim.get_player(1).dead)
 	assert_true(sim.halted)
 	var events: Array[SimEvent] = sim.take_events()
@@ -48,7 +48,7 @@ func test_halted_sim_ignores_inputs_but_counts_ticks() -> void:
 	var sim: Simulation = _sim(["S^.S", "####"])
 	sim.add_player(1)
 	sim.add_player(2)
-	_run(sim, 1, InputBits.RIGHT, 2)
+	_run(sim, 1, InputBits.RIGHT, 4)
 	var tick_after_death: int = sim.tick
 	var x_before: float = sim.get_player(2).position.x
 	_run(sim, 2, InputBits.LEFT, 10)
@@ -79,7 +79,7 @@ func test_restart_puts_everyone_back_and_resumes() -> void:
 func test_dead_player_is_not_moved() -> void:
 	var sim: Simulation = _sim(["S^..", "####"])
 	sim.add_player(1)
-	_run(sim, 1, InputBits.RIGHT, 2)
+	_run(sim, 1, InputBits.RIGHT, 4)
 	var x_dead: float = sim.get_player(1).position.x
 	sim.halted = false
 	_run(sim, 1, InputBits.RIGHT, 5)
@@ -105,7 +105,8 @@ func test_neighbour_survives() -> void:
 func test_jumper_clears_a_single_spike() -> void:
 	var sim: Simulation = _sim(["S....^....", "##########"])
 	sim.add_player(1)
-	# Fenêtre de départ du saut pour un spike en x = 80 : de 49,8 à 62,2 px.
+	# Départ du saut 27 px avant la tile du spike, dans la fenêtre mesurée par
+	# tests/sim/test_spike_window.gd.
 	_run(sim, 1, 0, 5)
 	_run(sim, 1, InputBits.RIGHT, 33)
 	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 40)
@@ -116,15 +117,17 @@ func test_jumper_clears_a_single_spike() -> void:
 func test_overlaps_spike_zone_only() -> void:
 	var level: Level = Level.from_rows(["^"])
 	assert_true(level.grid.overlaps_spike(Rect2(0, 0, 16, 16)))
-	assert_false(level.grid.overlaps_spike(Rect2(0, -10, 16, 16)))
-	assert_false(level.grid.overlaps_spike(Rect2(-13, 0, 16, 16)))
-	assert_true(level.grid.overlaps_spike(Rect2(-12, 0, 16, 16)))
+	assert_false(level.grid.overlaps_spike(Rect2(0, -6, 16, 16)))
+	assert_true(level.grid.overlaps_spike(Rect2(0, -5, 16, 16)))
+	assert_false(level.grid.overlaps_spike(Rect2(-11, 0, 16, 16)))
+	assert_true(level.grid.overlaps_spike(Rect2(-10, 0, 16, 16)))
 
 
 func test_held_jump_does_not_fire_after_restart() -> void:
-	var sim: Simulation = _sim(["S^..", "####"])
+	# Le saut tenu part du spawn et retombe sur le spike trois tiles plus loin.
+	var sim: Simulation = _sim(["S..^.", "#####"])
 	sim.add_player(1)
-	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 2)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 40)
 	assert_true(sim.get_player(1).dead)
 	sim.restart()
 	_run(sim, 1, InputBits.JUMP, 2)

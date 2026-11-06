@@ -51,8 +51,8 @@ géant, chrono, score, vies.
 ### Mort
 
 - Causes : sortir du niveau par le bas, toucher la zone létale d'une tuile
-  `spike` (la base de la tuile, 10 px sur 10 : un marcheur meurt, un sauteur
-  passe dès 10 px de hauteur).
+  `spike` (6 px sur 6 au centre de la base de la tuile : un marcheur meurt, un
+  sauteur passe dès 6 px de hauteur).
 - La zone létale laisse une fenêtre de départ de saut d'au moins 12 `ticks`
   (200 ms) devant un `spike` isolé, pour un `client` en retard.
 - Un joueur meurt : bandeau « X died » pendant 1 s, puis le niveau recommence

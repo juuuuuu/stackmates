@@ -9,9 +9,12 @@ enum Tile { EMPTY, SOLID, SPIKE }
 const EDGE_EPSILON: float = 0.001
 ## La zone létale d'un spike est la base de sa tile : 10 px de large, 10 px de
 ## haut, posée au bas de la tile. Un sauteur passe dès 10 px de hauteur.
-const SPIKE_INSET_X: float = 3.0
-const SPIKE_INSET_TOP: float = 6.0
-const SPIKE_ZONE_SIZE: float = 10.0
+## Zone létale de 6 px de côté au centre de la base de la tile : un marcheur
+## meurt, et la fenêtre de départ de saut devant un spike isolé fait au moins
+## 12 ticks (tests/sim/test_spike_window.gd).
+const SPIKE_INSET_X: float = 5.0
+const SPIKE_INSET_TOP: float = 10.0
+const SPIKE_ZONE_SIZE: float = 6.0
 
 var width: int
 var height: int

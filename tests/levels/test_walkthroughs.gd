@@ -1,9 +1,10 @@
 extends GutTest
 ## Chaque niveau est prouvé jouable par un parcours scripté dans le sim core.
 
-const LEVEL_03_SPIKES: Array[float] = [224.0, 320.0, 416.0, 512.0]
+const LEVEL_03_SPIKES: Array[float] = [272.0, 352.0, 432.0, 512.0]
+const LEVEL_05_SPIKES: Array[float] = [336.0, 384.0]
 ## Distance entre le player et le bord de la tile d'un spike isolé au départ
-## du saut : fenêtre calculée de 17,8 à 28,6 px, marche à 1,6 px près.
+## du saut, au milieu de la fenêtre mesurée par tests/sim/test_spike_window.gd.
 const JUMP_LEAD_PX: float = 24.0
 
 
@@ -50,6 +51,12 @@ func test_level_02_cannot_be_cleared_alone_from_the_floor() -> void:
 	Walkthrough.jump_toward(sim, 1, 1, 60)
 	assert_eq(sim.key_carrier, 0)
 	assert_lt(sim.get_player(1).position.x, 320.0)
+
+
+static func _reversed(values: Array[float]) -> Array[float]:
+	var copy: Array[float] = values.duplicate()
+	copy.reverse()
+	return copy
 
 
 func _cross_spikes(sim: Simulation, slot: int, direction: int) -> void:
@@ -134,7 +141,7 @@ func test_level_05_combination() -> void:
 	sim.add_player(2)
 	Walkthrough.idle_all(sim)
 	for slot: int in [2, 1]:
-		for spike_x: float in [288.0, 368.0]:
+		for spike_x: float in LEVEL_05_SPIKES:
 			assert_true(Walkthrough.walk_to(sim, slot, spike_x - JUMP_LEAD_PX))
 			Walkthrough.jump_toward(sim, slot, 1)
 		Walkthrough.idle_all(sim)
@@ -148,7 +155,7 @@ func test_level_05_combination() -> void:
 	assert_eq(sim.key_carrier, 1)
 	for slot: int in [1, 2]:
 		assert_true(Walkthrough.walk_to(sim, slot, 420.0))
-		for spike_x: float in [368.0, 288.0]:
+		for spike_x: float in _reversed(LEVEL_05_SPIKES):
 			assert_true(Walkthrough.walk_to(sim, slot, spike_x + JUMP_LEAD_PX))
 			Walkthrough.jump_toward(sim, slot, -1)
 		assert_true(Walkthrough.walk_to(sim, slot, 130.0))
@@ -181,7 +188,7 @@ func test_level_05_block_reaches_the_wall() -> void:
 	sim.add_player(2)
 	Walkthrough.idle_all(sim)
 	for slot: int in [2, 1]:
-		for spike_x: float in [288.0, 368.0]:
+		for spike_x: float in LEVEL_05_SPIKES:
 			assert_true(Walkthrough.walk_to(sim, slot, spike_x - JUMP_LEAD_PX))
 			Walkthrough.jump_toward(sim, slot, 1)
 		Walkthrough.idle_all(sim)

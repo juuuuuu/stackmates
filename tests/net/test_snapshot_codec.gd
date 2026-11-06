@@ -77,7 +77,7 @@ func test_from_simulation_sets_level_and_player_flags() -> void:
 	assert_false(bool(s.flags[0] & Snapshot.FLAG_KEY_CARRIER))
 	sim.restart()
 	sim.set_input(2, InputBits.LEFT)
-	for i: int in 2:
+	for i: int in 4:
 		sim.step()
 	s = Snapshot.from_simulation(sim)
 	assert_true(bool(s.flags[1] & Snapshot.FLAG_DEAD))
