@@ -73,9 +73,11 @@ géant, chrono, score, vies.
 
 - Pixel art, tuiles de 16 px.
 - Viewport de base 640x360 (40 tuiles sur 22,5). Stretch mode `canvas_items`,
-  aspect `keep`, échelle entière, filtre `nearest`.
+  aspect `keep`, échelle fractionnaire, filtre `nearest` : la fenêtre est
+  remplie même quand elle n'est pas un multiple exact (fenêtre maximisée sur
+  un écran 1080p), au prix de pixels légèrement inégaux dans ce cas.
 - Fenêtre 1280x720 par défaut, redimensionnable. Plein écran activable (F11 et
-  options). 1080p couvert à l'échelle x3, 1440p à x4.
+  options). 1080p couvert à l'échelle x3 exacte, 1440p à x4.
 - Niveaux sur un seul écran, caméra fixe, pas de scrolling.
 - Renderer `Compatibility` (OpenGL 3).
 - Touches fixes en v1. Clavier : flèches ou touches physiques WASD (donc ZQSD en
