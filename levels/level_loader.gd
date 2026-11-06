@@ -5,6 +5,8 @@ extends RefCounted
 
 const TILES_NODE: String = "Tiles"
 const SPAWNS_NODE: String = "Spawns"
+const KEY_NODE: String = "Key"
+const DOOR_NODE: String = "Door"
 const KIND_LAYER: String = "kind"
 const KIND_SOLID: String = "solid"
 const KIND_SPIKE: String = "spike"
@@ -28,8 +30,18 @@ static func from_scene_root(root: Node) -> Level:
 	for marker: Node in markers:
 		var marker_2d: Marker2D = marker as Marker2D
 		if marker_2d != null:
-			level.spawns.append(Vector2i((marker_2d.position / SimConstants.TILE_SIZE).floor()))
+			level.spawns.append(_tile_of(marker_2d))
+	var key_marker: Marker2D = root.get_node_or_null(KEY_NODE) as Marker2D
+	if key_marker != null:
+		level.key_tile = _tile_of(key_marker)
+	var door_marker: Marker2D = root.get_node_or_null(DOOR_NODE) as Marker2D
+	if door_marker != null:
+		level.door_tile = _tile_of(door_marker)
 	return level
+
+
+static func _tile_of(marker: Marker2D) -> Vector2i:
+	return Vector2i((marker.position / SimConstants.TILE_SIZE).floor())
 
 
 static func _by_natural_name(a: Node, b: Node) -> bool:

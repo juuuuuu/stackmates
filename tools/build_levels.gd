@@ -92,7 +92,6 @@ func _build_level(rows: Array[String], tileset: TileSet, out_path: String) -> Er
 	level_root.add_child(spawns)
 	spawns.owner = level_root
 	var spawn_count: int = 0
-	var half: float = SimConstants.TILE_SIZE / 2.0
 	for y: int in rows.size():
 		var row: String = rows[y]
 		for x: int in row.length():
@@ -103,16 +102,24 @@ func _build_level(rows: Array[String], tileset: TileSet, out_path: String) -> Er
 				tiles.set_cell(Vector2i(x, y), SOURCE_ID, ATLAS_SPIKE)
 			elif c == Level.CHAR_SPAWN:
 				spawn_count += 1
-				var marker: Marker2D = Marker2D.new()
-				marker.name = "Spawn%d" % spawn_count
-				marker.position = Vector2(
-					x * SimConstants.TILE_SIZE + half, y * SimConstants.TILE_SIZE + half
-				)
-				spawns.add_child(marker)
-				marker.owner = level_root
+				_add_marker(spawns, level_root, "Spawn%d" % spawn_count, x, y)
+			elif c == Level.CHAR_KEY:
+				_add_marker(level_root, level_root, "Key", x, y)
+			elif c == Level.CHAR_DOOR:
+				_add_marker(level_root, level_root, "Door", x, y)
 	var scene: PackedScene = PackedScene.new()
 	var pack_error: Error = scene.pack(level_root)
 	level_root.free()
 	if pack_error != OK:
 		return pack_error
 	return ResourceSaver.save(scene, out_path)
+
+
+## Pose un Marker2D au centre de la tile (x, y).
+func _add_marker(parent: Node, owner_node: Node, marker_name: String, x: int, y: int) -> void:
+	var half: float = SimConstants.TILE_SIZE / 2.0
+	var marker: Marker2D = Marker2D.new()
+	marker.name = marker_name
+	marker.position = Vector2(x * SimConstants.TILE_SIZE + half, y * SimConstants.TILE_SIZE + half)
+	parent.add_child(marker)
+	marker.owner = owner_node

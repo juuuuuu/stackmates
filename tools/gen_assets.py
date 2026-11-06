@@ -16,6 +16,11 @@ TRANSPARENT = (0, 0, 0, 0)
 SOLID_FILL = "#6b7280"
 SOLID_BORDER = "#374151"
 SPIKE_FILL = "#e5e7eb"
+KEY_FILL = "#f2c94c"
+DOOR_FILL = "#8b5e3c"
+DOOR_FRAME = "#5c3d26"
+DOOR_OPENING = "#1f2933"
+TILE_COUNT = 5
 PALETTE = [
     "#e63946",
     "#457bd3",
@@ -38,10 +43,22 @@ def darken(color: tuple[int, int, int, int], factor: float = 0.6) -> tuple[int, 
 
 
 def draw_tiles() -> None:
-    image = Image.new("RGBA", (2 * TILE, TILE), TRANSPARENT)
+    """Atlas : 0 solid, 1 spike, 2 key, 3 door fermée, 4 door ouverte."""
+    image = Image.new("RGBA", (TILE_COUNT * TILE, TILE), TRANSPARENT)
     draw = ImageDraw.Draw(image)
     draw.rectangle([0, 0, TILE - 1, TILE - 1], fill=rgba(SOLID_FILL), outline=rgba(SOLID_BORDER))
     draw.polygon([(TILE, TILE - 1), (2 * TILE - 1, TILE - 1), (TILE + 7, 1), (TILE + 8, 1)], fill=rgba(SPIKE_FILL))
+    key_x = 2 * TILE
+    draw.rectangle([key_x + 2, 2, key_x + 7, 7], outline=rgba(KEY_FILL))
+    draw.rectangle([key_x + 3, 3, key_x + 6, 6], outline=rgba(KEY_FILL))
+    draw.rectangle([key_x + 8, 7, key_x + 9, 13], fill=rgba(KEY_FILL))
+    draw.rectangle([key_x + 10, 10, key_x + 11, 10], fill=rgba(KEY_FILL))
+    draw.rectangle([key_x + 10, 12, key_x + 11, 12], fill=rgba(KEY_FILL))
+    closed_x = 3 * TILE
+    draw.rectangle([closed_x, 0, closed_x + TILE - 1, TILE - 1], fill=rgba(DOOR_FILL), outline=rgba(DOOR_FRAME))
+    draw.rectangle([closed_x + 11, 8, closed_x + 12, 9], fill=rgba(KEY_FILL))
+    open_x = 4 * TILE
+    draw.rectangle([open_x, 0, open_x + TILE - 1, TILE - 1], fill=rgba(DOOR_OPENING), outline=rgba(DOOR_FRAME))
     image.save(ASSETS / "tiles.png")
 
 
