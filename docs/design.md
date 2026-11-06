@@ -50,7 +50,9 @@ géant, chrono, score, vies.
 
 ### Mort
 
-- Causes : sortir du niveau par le bas, toucher une tuile `spike`.
+- Causes : sortir du niveau par le bas, toucher la zone létale d'une tuile
+  `spike` (la base de la tuile, 10 px sur 10 : un marcheur meurt, un sauteur
+  passe dès 10 px de hauteur).
 - Un joueur meurt : bandeau « X died » pendant 1 s, puis le niveau recommence
   pour tout le monde. Pas de vies, pas de compteur.
 
@@ -219,7 +221,9 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 
 ## Jalons
 
-Livrés : jalon 0 (`v0.0.1`, 2026-11-06), jalon 1 (`v0.1.0`, 2026-11-06).
+Livrés : jalon 0 (`v0.0.1`, 2026-11-06), jalon 1 (`v0.1.0`, 2026-11-06),
+jalon 2a (cinq niveaux, choix du niveau, écran de victoire, sur `main`,
+2026-11-06). Le jalon 2b (lobby réseau, audio, options, traduction) suit.
 
 - Jalon 0 : `sim core` minimal (marche, saut, collision tuiles), transport
   réseau, lobby minimal, un niveau vide, exports des trois plateformes en CI.
