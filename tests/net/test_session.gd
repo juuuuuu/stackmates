@@ -26,9 +26,10 @@ func test_stale_join_timeout_is_ignored_after_a_new_join() -> void:
 	session.leave()
 
 
-func test_protocol_version_bumped_for_milestone_1() -> void:
-	# Nouveaux RPC et nouveaux flags de snapshot : un client v0.0.1 doit être refusé.
-	assert_eq(Session.PROTOCOL_VERSION, 2)
+func test_protocol_version_bumped_for_milestone_2a() -> void:
+	# Jalon 1 : nouveaux RPC et flags ; jalon 2a : cinq niveaux que le client
+	# doit posséder. Un client v0.1.0 doit être refusé.
+	assert_eq(Session.PROTOCOL_VERSION, 3)
 
 
 func test_session_frees_its_port_when_removed_from_tree() -> void:

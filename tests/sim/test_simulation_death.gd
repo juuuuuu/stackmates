@@ -70,8 +70,9 @@ func test_restart_puts_everyone_back_and_resumes() -> void:
 	assert_eq(sim.get_player(2).position, Vector2(48, 0))
 	assert_eq(sim.get_player(2).velocity, Vector2.ZERO)
 	assert_eq(sim.tick, tick_before)
+	# Les inputs tenus restent valables : le player 2 reprend sa marche à gauche.
 	sim.step()
-	assert_eq(sim.get_player(2).position.x, 48.0)
+	assert_almost_eq(sim.get_player(2).position.x, 46.4, 0.01)
 	assert_eq(sim.tick, tick_before + 1)
 
 
@@ -128,3 +129,17 @@ func test_held_jump_does_not_fire_after_restart() -> void:
 	sim.restart()
 	_run(sim, 1, InputBits.JUMP, 2)
 	assert_true(sim.get_player(1).on_ground)
+
+
+func test_held_input_survives_restart_without_new_packet() -> void:
+	# Un client dont aucun paquet n'arrive au tick qui suit le restart garde son
+	# input : un JUMP toujours tenu ne compte pas comme une pression neuve.
+	var sim: Simulation = _sim(["S...^", "#####"])
+	sim.add_player(1)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 40)
+	assert_true(sim.get_player(1).dead)
+	sim.restart()
+	sim.step()
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 1)
+	assert_true(sim.get_player(1).on_ground)
+	assert_almost_eq(sim.get_player(1).position.x, 3.2, 0.01)

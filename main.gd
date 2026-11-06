@@ -279,6 +279,9 @@ func _on_start_requested(level_index: int) -> void:
 
 
 func _on_game_started(level_index: int) -> void:
+	if level_index < 0 or level_index >= LevelList.count():
+		push_warning("niveau inconnu : %d" % level_index)
+		return
 	_level_index = level_index
 	_level_scene = load(LevelList.PATHS[level_index])
 	var level_root: Node = _level_scene.instantiate()

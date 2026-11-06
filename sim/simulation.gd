@@ -56,7 +56,9 @@ func take_events() -> Array[SimEvent]:
 	return events
 
 
-## Remet tout le monde aux spawns et reprend. Le tick continue.
+## Remet tout le monde aux spawns et reprend. Le tick continue et les inputs
+## tenus restent valables (un client ne renvoie pas forcément un paquet au
+## tick suivant).
 func restart() -> void:
 	for player: PlayerState in players:
 		player.position = _spawn_position(player.slot)
@@ -67,7 +69,6 @@ func restart() -> void:
 		player.last_dx = 0.0
 		player.coyote_ticks_left = 0
 		player.jump_buffer_ticks_left = 0
-	_inputs.clear()
 	_events = []
 	halted = false
 	key_carrier = 0

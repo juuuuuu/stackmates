@@ -102,3 +102,11 @@ func test_two_deaths_same_tick_name_both() -> void:
 	main._on_level_event(SimEvent.Kind.DEATH, 7)
 	assert_eq(main.hud.banner_text(), "Ju and Player 7 died")
 	_press(main, "ui_cancel")
+
+
+func test_out_of_range_level_index_is_ignored() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_game_started(42)
+	assert_eq(main.state, main.State.LOBBY)
+	_press(main, "ui_cancel")

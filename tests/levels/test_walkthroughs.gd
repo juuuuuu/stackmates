@@ -156,3 +156,40 @@ func test_level_05_combination() -> void:
 		assert_true(Walkthrough.walk_to(sim, slot, 64.0))
 		Walkthrough.idle_all(sim)
 	assert_true(sim.is_level_clear())
+
+
+func test_level_02_block_reaches_the_wall() -> void:
+	# Pas de poche à droite du bloc : un porteur qui continue à droite reste
+	# sur le bloc jusqu'au mur et peut revenir.
+	var sim: Simulation = Simulation.new(Walkthrough.load_level("res://levels/level_02.tscn"))
+	sim.add_player(1)
+	sim.add_player(2)
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 2, 304.0))
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 1, 272.0))
+	Walkthrough.jump_toward(sim, 1, 1)
+	Walkthrough.jump_toward(sim, 1, 1)
+	assert_true(Walkthrough.walk_to(sim, 1, 600.0))
+	Walkthrough.hold(sim, 1, InputBits.RIGHT, 60)
+	assert_eq(sim.get_player(1).position, Vector2(608, 272))
+
+
+func test_level_05_block_reaches_the_wall() -> void:
+	var sim: Simulation = Simulation.new(Walkthrough.load_level("res://levels/level_05.tscn"))
+	sim.add_player(1)
+	sim.add_player(2)
+	Walkthrough.idle_all(sim)
+	for slot: int in [2, 1]:
+		for spike_x: float in [288.0, 368.0]:
+			assert_true(Walkthrough.walk_to(sim, slot, spike_x - JUMP_LEAD_PX))
+			Walkthrough.jump_toward(sim, slot, 1)
+		Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 2, 432.0))
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 1, 400.0))
+	Walkthrough.jump_toward(sim, 1, 1)
+	Walkthrough.jump_toward(sim, 1, 1)
+	assert_true(Walkthrough.walk_to(sim, 1, 600.0))
+	Walkthrough.hold(sim, 1, InputBits.RIGHT, 60)
+	assert_eq(sim.get_player(1).position, Vector2(608, 272))

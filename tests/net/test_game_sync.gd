@@ -49,3 +49,22 @@ func test_player_left_during_clear_keeps_next_level() -> void:
 	assert_true(sync.simulation.halted)
 	assert_true(sync.simulation.get_player(1).entered)
 	sync.stop()
+
+
+func test_player_left_during_death_banner_restarts_once() -> void:
+	var session: Session = add_child_autofree(Session.new())
+	var sync: GameSync = add_child_autofree(GameSync.new())
+	sync.session = session
+	watch_signals(sync)
+	sync.start_as_host(Level.from_rows(["S^.S", "####"]), [1, 2])
+	sync.simulation.set_input(1, InputBits.RIGHT)
+	for i: int in 4:
+		sync._host_tick(0)
+	assert_true(sync.simulation.get_player(1).dead)
+	sync.simulation.set_input(1, 0)
+	sync._on_roster_changed({1: "Host"})
+	assert_signal_emit_count(sync, "level_restarted", 1)
+	for i: int in 90:
+		sync._host_tick(0)
+	assert_signal_emit_count(sync, "level_restarted", 1)
+	sync.stop()

@@ -114,6 +114,7 @@ func _on_roster_changed(roster: Dictionary) -> void:
 			removed = true
 	if removed and not already_clear:
 		simulation.restart()
+		director = LevelDirector.new()
 		_level_restarted.rpc()
 
 
