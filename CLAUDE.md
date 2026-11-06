@@ -19,6 +19,8 @@ joueurs, `host-authoritative`.
   code dans `sim/` ou `net/`.
 - Les WAV sont importés compressés (QOA) : une longueur en échantillons se lit
   par `get_length() * mix_rate`, jamais par `data.size()`.
+- `make help` liste les commandes courantes ; chaque cible appelle un script de
+  `tools/` ou Godot (`make test`, `make lint`, `make check`, `make build`).
 - Tests : `bash tools/test.sh`, la seule commande de test. Elle importe le
   projet puis lance GUT, et sort en 1 sur toute erreur de script. GUT seul sort
   en 0 sans rien lancer si l'import manque ou si un test ne parse pas.

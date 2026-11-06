@@ -59,6 +59,10 @@ tolérants, CI robuste). Voir `docs/design.md`.
 
 ## Développer
 
+- `make help` liste les commandes courantes : `make run`, `make test`,
+  `make lint`, `make check` (tout ce que la CI vérifie), `make build`
+  (exports des trois plateformes), `make levels`, `make assets`. Chaque cible
+  appelle un des scripts décrits ci-dessous.
 - Godot 4.7.2 (https://godotengine.org/download), renderer `Compatibility`.
 - Lancer : `godot --path .` ou ouvrir le dossier dans l'éditeur.
 - Tests : `bash tools/test.sh` (importe les ressources puis lance GUT).

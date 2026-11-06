@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 if grep -rnF \
 	-e "$(printf '\xe2\x80\x94')" -e "$(printf '\xe2\x80\x93')" -e "$(printf '\xc2\xb7')" \
 	-e "$(printf '\xe2\x80\xa2')" -e "$(printf '\xe2\x80\xa6')" \
-	README.md CLAUDE.md GLOSSARY.md docs/*.md docs/adr main.gd \
+	README.md CLAUDE.md GLOSSARY.md Makefile docs/*.md docs/adr main.gd \
 	sim net ui levels tools tests locale .github; then
 	echo "check_typography: caractères bannis trouvés"
 	exit 1
