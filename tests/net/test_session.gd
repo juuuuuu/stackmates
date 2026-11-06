@@ -29,3 +29,14 @@ func test_stale_join_timeout_is_ignored_after_a_new_join() -> void:
 func test_protocol_version_bumped_for_milestone_1() -> void:
 	# Nouveaux RPC et nouveaux flags de snapshot : un client v0.0.1 doit être refusé.
 	assert_eq(Session.PROTOCOL_VERSION, 2)
+
+
+func test_session_frees_its_port_when_removed_from_tree() -> void:
+	var first: Session = Session.new()
+	add_child(first)
+	assert_eq(first.host(28019, "Ju"), OK)
+	remove_child(first)
+	first.free()
+	var second: Session = add_child_autofree(Session.new())
+	assert_eq(second.host(28019, "Ju"), OK)
+	second.leave()

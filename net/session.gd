@@ -39,6 +39,12 @@ func _ready() -> void:
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 
+## Quitter la session quand le node disparaît : un host qui ferme la fenêtre
+## prévient ses clients, et un test qui échoue libère son port.
+func _exit_tree() -> void:
+	leave()
+
+
 func host(port: int, player_name: String) -> Error:
 	_player_name = player_name
 	var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
