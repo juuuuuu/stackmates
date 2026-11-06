@@ -42,6 +42,7 @@ Cannot connect (%s),Cannot connect (%s),Connexion impossible (%s)
 Local IP,Local IP,IP locale
 Public IP,Public IP,IP publique
 unknown,unknown,inconnue
+searching...,searching...,recherche...
 Copy,Copy,Copier
 UPnP: opening the port...,UPnP: opening the port...,UPnP : ouverture du port...
 UPnP: port opened,UPnP: port opened,UPnP : port ouvert

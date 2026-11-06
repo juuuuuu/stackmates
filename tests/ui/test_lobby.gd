@@ -3,6 +3,11 @@ extends GutTest
 const LOBBY_SCENE: PackedScene = preload("res://ui/lobby.tscn")
 
 
+## Les textes attendus sont en anglais, quelle que soit la langue de la machine.
+func before_each() -> void:
+	TranslationServer.set_locale("en")
+
+
 func test_roster_rows_and_start_visibility() -> void:
 	var lobby: Lobby = add_child_autofree(LOBBY_SCENE.instantiate())
 	lobby.set_roster({1: "Host", 2: "Guest"}, true)
@@ -41,7 +46,7 @@ func test_lobby_shows_network_failure() -> void:
 	var lobby: Lobby = add_child_autofree(LOBBY_SCENE.instantiate())
 	lobby.set_roster({1: "Host"}, true)
 	var upnp_status: String = tr("UPnP: failed. Open UDP port %d on your router.") % 28015
-	lobby.set_network_info("192.168.1.2", "", 28015, upnp_status)
+	lobby.set_network_info("192.168.1.2", "", tr("unknown"), 28015, upnp_status)
 	assert_true(lobby.network_info_visible())
 	assert_true(lobby.local_ip_label.text.ends_with("192.168.1.2"))
 	assert_true(lobby.public_ip_label.text.ends_with(tr("unknown")))
@@ -49,3 +54,11 @@ func test_lobby_shows_network_failure() -> void:
 	assert_true(lobby.start_button.visible)
 	lobby.set_roster({1: "Host"}, false)
 	assert_false(lobby.network_info_visible())
+
+
+func test_public_ip_shows_status_until_known() -> void:
+	var lobby: Lobby = add_child_autofree(LOBBY_SCENE.instantiate())
+	lobby.set_network_info("192.168.1.2", "", "searching...", 28015, "")
+	assert_eq(lobby.public_ip_label.text, "Public IP: searching...")
+	lobby.set_network_info("192.168.1.2", "8.8.8.8", "searching...", 28015, "")
+	assert_eq(lobby.public_ip_label.text, "Public IP: 8.8.8.8")

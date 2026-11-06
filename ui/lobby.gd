@@ -80,15 +80,18 @@ func _on_start_pressed() -> void:
 
 
 ## Les infos à partager par le host : IP locale, IP publique, port, état UPnP.
-## Une IP vide s'affiche "unknown".
-func set_network_info(local_ip: String, public_ip: String, port: int, upnp_status: String) -> void:
+## Une IP locale vide s'affiche "unknown" ; une IP publique vide affiche
+## public_ip_status ("searching..." tant que la sonde tourne, puis "unknown").
+func set_network_info(
+	local_ip: String, public_ip: String, public_ip_status: String, port: int, upnp_status: String
+) -> void:
 	_local_ip = local_ip
 	_public_ip = public_ip
 	local_ip_label.text = (
 		tr("Local IP") + ": " + (local_ip if not local_ip.is_empty() else tr("unknown"))
 	)
 	public_ip_label.text = (
-		tr("Public IP") + ": " + (public_ip if not public_ip.is_empty() else tr("unknown"))
+		tr("Public IP") + ": " + (public_ip if not public_ip.is_empty() else public_ip_status)
 	)
 	port_label.text = tr("Port") + ": " + str(port)
 	upnp_label.text = upnp_status

@@ -190,3 +190,10 @@ func test_victory_closes_pause_menu() -> void:
 	assert_false(main.is_input_blocked())
 	main._on_victory_back()
 	_press(main, "ui_cancel")
+
+
+func test_host_without_probes_shows_public_ip_unknown() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	var lobby: Lobby = main.screen_root.get_node("Lobby")
+	assert_eq(lobby.public_ip_label.text, "Public IP: unknown")

@@ -63,6 +63,8 @@ var _death_names: Array[String] = []
 var _host_port: int = 0
 var _local_ip: String = ""
 var _public_ip: String = ""
+## Texte affiché tant que l'IP publique est vide : "searching..." ou "unknown".
+var _public_ip_status: String = ""
 var _upnp_status: String = ""
 var _public_ip_probe: PublicIpProbe
 var _upnp_opener: UpnpOpener
@@ -515,13 +517,16 @@ func _start_network_probes(port: int) -> void:
 	_host_port = port
 	_local_ip = NetInfo.local_ipv4()
 	_public_ip = ""
+	_public_ip_status = tr("unknown")
 	_upnp_status = tr("UPnP: opening the port...")
-	_refresh_network_info()
 	if not network_probes_enabled or _smoke:
+		_refresh_network_info()
 		return
+	_public_ip_status = tr("searching...")
+	_refresh_network_info()
 	_public_ip_probe = PublicIpProbe.new()
 	_public_ip_probe.resolved.connect(_on_public_ip_resolved)
-	_public_ip_probe.failed.connect(_refresh_network_info)
+	_public_ip_probe.failed.connect(_on_public_ip_failed)
 	add_child(_public_ip_probe)
 	_public_ip_probe.start()
 	_upnp_opener = UpnpOpener.new()
@@ -545,6 +550,12 @@ func _on_public_ip_resolved(address: String) -> void:
 	_refresh_network_info()
 
 
+func _on_public_ip_failed() -> void:
+	GameLog.info("net", "public ip unknown")
+	_public_ip_status = tr("unknown")
+	_refresh_network_info()
+
+
 func _on_upnp_finished(ok: bool, message: String) -> void:
 	GameLog.info("net", "upnp %s on port %d" % ["ok" if ok else "failed", _host_port])
 	_upnp_status = message
@@ -553,4 +564,4 @@ func _on_upnp_finished(ok: bool, message: String) -> void:
 
 func _refresh_network_info() -> void:
 	if _lobby != null and session.is_host:
-		_lobby.set_network_info(_local_ip, _public_ip, _host_port, _upnp_status)
+		_lobby.set_network_info(_local_ip, _public_ip, _public_ip_status, _host_port, _upnp_status)
