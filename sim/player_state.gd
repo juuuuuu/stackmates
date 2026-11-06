@@ -11,6 +11,14 @@ var facing_left: bool
 var coyote_ticks_left: int
 var jump_buffer_ticks_left: int
 var previous_input: int
+var dead: bool
+var entered: bool
+var last_dx: float
+
+
+## Un player mort ou entré dans la door n'est ni déplacé ni obstacle.
+func is_active() -> bool:
+	return not dead and not entered
 
 
 func rect() -> Rect2:

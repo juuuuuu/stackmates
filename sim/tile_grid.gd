@@ -37,13 +37,18 @@ func is_solid(x: int, y: int) -> bool:
 
 
 func overlaps_solid(rect: Rect2) -> bool:
+	return overlaps_tile(rect, Tile.SOLID)
+
+
+## Vrai si une tile du type donné recouvre le rect (bords droit et bas exclus).
+func overlaps_tile(rect: Rect2, tile: Tile) -> bool:
 	var x0: int = floori(rect.position.x / SimConstants.TILE_SIZE)
 	var x1: int = floori((rect.end.x - EDGE_EPSILON) / SimConstants.TILE_SIZE)
 	var y0: int = floori(rect.position.y / SimConstants.TILE_SIZE)
 	var y1: int = floori((rect.end.y - EDGE_EPSILON) / SimConstants.TILE_SIZE)
 	for y: int in range(y0, y1 + 1):
 		for x: int in range(x0, x1 + 1):
-			if is_solid(x, y):
+			if get_tile(x, y) == tile:
 				return true
 	return false
 

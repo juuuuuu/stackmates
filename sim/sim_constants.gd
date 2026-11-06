@@ -10,6 +10,7 @@ const JUMP_HEIGHT: float = 40.0
 const JUMP_APEX_TIME: float = 0.25
 const GRAVITY: float = 1280.0  # 2 * JUMP_HEIGHT / JUMP_APEX_TIME ** 2
 const JUMP_SPEED: float = 320.0  # GRAVITY * JUMP_APEX_TIME
+const MAX_FALL_SPEED: float = 900.0  # 15 px par tick, sous une tile
 const COYOTE_TICKS: int = 4
 const JUMP_BUFFER_TICKS: int = 4
 const MAX_PLAYERS: int = 8
