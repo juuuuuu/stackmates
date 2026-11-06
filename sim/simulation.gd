@@ -281,7 +281,7 @@ func _apply_deaths(active: Array[PlayerState]) -> bool:
 	var any_death: bool = false
 	var bottom: float = level.grid.height * SimConstants.TILE_SIZE
 	for player: PlayerState in active:
-		var on_spike: bool = level.grid.overlaps_tile(player.rect(), TileGrid.Tile.SPIKE)
+		var on_spike: bool = level.grid.overlaps_spike(player.rect())
 		if on_spike or player.position.y >= bottom:
 			player.dead = true
 			_events.append(SimEvent.make(SimEvent.Kind.DEATH, player.slot))

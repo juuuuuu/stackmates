@@ -23,7 +23,7 @@ func test_fall_speed_is_capped() -> void:
 
 
 func test_spike_kills_and_halts() -> void:
-	var sim: Simulation = _sim(["S^.", "###"])
+	var sim: Simulation = _sim(["S^.S", "####"])
 	sim.add_player(1)
 	sim.add_player(2)
 	_run(sim, 1, InputBits.RIGHT, 2)
@@ -83,3 +83,38 @@ func test_dead_player_is_not_moved() -> void:
 	sim.halted = false
 	_run(sim, 1, InputBits.RIGHT, 5)
 	assert_eq(sim.get_player(1).position.x, x_dead)
+
+
+func test_walker_dies_on_spike() -> void:
+	var sim: Simulation = _sim(["S^..", "####"])
+	sim.add_player(1)
+	_run(sim, 1, InputBits.RIGHT, 4)
+	assert_true(sim.get_player(1).dead)
+
+
+func test_neighbour_survives() -> void:
+	var sim: Simulation = _sim(["S^..", "####"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 10)
+	assert_false(sim.get_player(1).dead)
+	_run(sim, 1, InputBits.RIGHT, 1)
+	assert_false(sim.get_player(1).dead)
+
+
+func test_jumper_clears_a_single_spike() -> void:
+	var sim: Simulation = _sim(["S....^....", "##########"])
+	sim.add_player(1)
+	# Fenêtre de départ du saut pour un spike en x = 80 : de 49,8 à 62,2 px.
+	_run(sim, 1, 0, 5)
+	_run(sim, 1, InputBits.RIGHT, 33)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 40)
+	assert_false(sim.get_player(1).dead)
+	assert_gt(sim.get_player(1).position.x, 96.0)
+
+
+func test_overlaps_spike_zone_only() -> void:
+	var level: Level = Level.from_rows(["^"])
+	assert_true(level.grid.overlaps_spike(Rect2(0, 0, 16, 16)))
+	assert_false(level.grid.overlaps_spike(Rect2(0, -10, 16, 16)))
+	assert_false(level.grid.overlaps_spike(Rect2(-13, 0, 16, 16)))
+	assert_true(level.grid.overlaps_spike(Rect2(-12, 0, 16, 16)))
