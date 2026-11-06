@@ -119,3 +119,53 @@ func test_jump_buffer_expires() -> void:
 	_run(sim, 1, 0, 30)
 	assert_eq(sim.get_player(1).position.y, 16.0)
 	assert_true(sim.get_player(1).on_ground)
+
+
+func test_coyote_lasts_exactly_four_ticks() -> void:
+	var sim: Simulation = _sim(["S...", "##..", "....", "####"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 5)
+	sim.set_input(1, InputBits.RIGHT)
+	while sim.get_player(1).on_ground:
+		sim.step()
+	_run(sim, 1, InputBits.RIGHT, 3)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 1)
+	assert_lt(sim.get_player(1).velocity.y, 0.0)
+
+
+func test_coyote_expires_on_fifth_tick() -> void:
+	var sim: Simulation = _sim(["S...", "##..", "....", "####"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 5)
+	sim.set_input(1, InputBits.RIGHT)
+	while sim.get_player(1).on_ground:
+		sim.step()
+	_run(sim, 1, InputBits.RIGHT, 4)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 1)
+	assert_gt(sim.get_player(1).velocity.y, 0.0)
+
+
+func test_jump_buffer_lasts_exactly_four_ticks() -> void:
+	# Chute de 16 px : le sol est touché au tick 9 (bords exclusifs, pas encore
+	# un atterrissage) et l'atterrissage est enregistré au tick 10. Pression au
+	# tick 7 : valable aux ticks 8 à 11, saut au tick 11.
+	var sim: Simulation = _sim(["S..", "...", "###"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 6)
+	_run(sim, 1, InputBits.JUMP, 1)
+	_run(sim, 1, 0, 3)
+	assert_true(sim.get_player(1).on_ground)
+	sim.step()
+	assert_false(sim.get_player(1).on_ground)
+
+
+func test_jump_buffer_expires_after_four_ticks() -> void:
+	# Pression au tick 6 : valable aux ticks 7 à 10, plus de saut au tick 11.
+	var sim: Simulation = _sim(["S..", "...", "###"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 5)
+	_run(sim, 1, InputBits.JUMP, 1)
+	_run(sim, 1, 0, 4)
+	assert_true(sim.get_player(1).on_ground)
+	sim.step()
+	assert_true(sim.get_player(1).on_ground)

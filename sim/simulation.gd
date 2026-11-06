@@ -67,7 +67,6 @@ func restart() -> void:
 		player.last_dx = 0.0
 		player.coyote_ticks_left = 0
 		player.jump_buffer_ticks_left = 0
-		player.previous_input = 0
 	_inputs.clear()
 	_events = []
 	halted = false
@@ -146,24 +145,28 @@ func _spawn_position(slot: int) -> Vector2:
 	return Vector2(spawns[index]) * SimConstants.TILE_SIZE
 
 
-## Jump buffer, coyote time, saut et gravité, avec la chute bornée.
+## Jump buffer, coyote time, saut et gravité, avec la chute bornée. Une
+## pression de saut reste valable les JUMP_BUFFER_TICKS ticks qui la suivent ;
+## le coyote time dure COYOTE_TICKS ticks après avoir quitté le sol.
 func _apply_vertical_intent(player: PlayerState, input: int) -> void:
 	var jump_held: bool = (input & InputBits.JUMP) != 0
 	var jump_was_held: bool = (player.previous_input & InputBits.JUMP) != 0
-	if jump_held and not jump_was_held:
+	var jump_pressed: bool = jump_held and not jump_was_held
+	if jump_pressed:
 		player.jump_buffer_ticks_left = SimConstants.JUMP_BUFFER_TICKS
-	elif player.jump_buffer_ticks_left > 0:
-		player.jump_buffer_ticks_left -= 1
 	if player.on_ground:
 		player.coyote_ticks_left = SimConstants.COYOTE_TICKS
-	elif player.coyote_ticks_left > 0:
-		player.coyote_ticks_left -= 1
 	var can_jump: bool = player.on_ground or player.coyote_ticks_left > 0
 	if player.jump_buffer_ticks_left > 0 and can_jump:
 		player.velocity.y = -SimConstants.JUMP_SPEED
 		player.jump_buffer_ticks_left = 0
 		player.coyote_ticks_left = 0
 		player.on_ground = false
+	else:
+		if not jump_pressed and player.jump_buffer_ticks_left > 0:
+			player.jump_buffer_ticks_left -= 1
+		if not player.on_ground and player.coyote_ticks_left > 0:
+			player.coyote_ticks_left -= 1
 	player.velocity.y += SimConstants.GRAVITY * SimConstants.DT
 	player.velocity.y = minf(player.velocity.y, SimConstants.MAX_FALL_SPEED)
 

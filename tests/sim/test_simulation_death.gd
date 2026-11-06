@@ -118,3 +118,13 @@ func test_overlaps_spike_zone_only() -> void:
 	assert_false(level.grid.overlaps_spike(Rect2(0, -10, 16, 16)))
 	assert_false(level.grid.overlaps_spike(Rect2(-13, 0, 16, 16)))
 	assert_true(level.grid.overlaps_spike(Rect2(-12, 0, 16, 16)))
+
+
+func test_held_jump_does_not_fire_after_restart() -> void:
+	var sim: Simulation = _sim(["S^..", "####"])
+	sim.add_player(1)
+	_run(sim, 1, InputBits.RIGHT | InputBits.JUMP, 2)
+	assert_true(sim.get_player(1).dead)
+	sim.restart()
+	_run(sim, 1, InputBits.JUMP, 2)
+	assert_true(sim.get_player(1).on_ground)
