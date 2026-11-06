@@ -163,6 +163,7 @@ func _apply_vertical_intent(player: PlayerState, input: int) -> void:
 		player.jump_buffer_ticks_left = 0
 		player.coyote_ticks_left = 0
 		player.on_ground = false
+		_events.append(SimEvent.make(SimEvent.Kind.JUMP, player.slot))
 	else:
 		if not jump_pressed and player.jump_buffer_ticks_left > 0:
 			player.jump_buffer_ticks_left -= 1

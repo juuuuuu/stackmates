@@ -128,3 +128,23 @@ func test_options_screen_opens_and_closes() -> void:
 	assert_not_null(main.screen_root.get_node_or_null("Options"))
 	main._on_options_closed()
 	assert_eq(main.state, main.State.MENU)
+
+
+func test_events_play_sounds_and_music_follows_the_game() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	assert_true(main.audio.is_music_playing())
+	main._on_level_event(SimEvent.Kind.JUMP, 1)
+	assert_eq(main.audio.last_played, "jump")
+	main._on_level_event(SimEvent.Kind.KEY_TAKEN, 1)
+	assert_eq(main.audio.last_played, "key")
+	main._leave_to_menu("")
+	assert_false(main.audio.is_music_playing())
+
+
+func test_level_event_outside_game_is_ignored() -> void:
+	var main: Main = _main()
+	main._on_level_event(SimEvent.Kind.JUMP, 1)
+	assert_eq(main.state, main.State.MENU)
+	assert_eq(main.audio.last_played, "")

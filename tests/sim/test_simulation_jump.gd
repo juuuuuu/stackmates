@@ -169,3 +169,14 @@ func test_jump_buffer_expires_after_four_ticks() -> void:
 	assert_true(sim.get_player(1).on_ground)
 	sim.step()
 	assert_true(sim.get_player(1).on_ground)
+
+
+func test_jump_emits_event() -> void:
+	var sim: Simulation = _sim(["S..", "###"])
+	sim.add_player(1)
+	_run(sim, 1, 0, 5)
+	_run(sim, 1, InputBits.JUMP, 1)
+	var events: Array[SimEvent] = sim.take_events()
+	assert_eq(events.size(), 1)
+	assert_eq(events[0].kind, SimEvent.Kind.JUMP)
+	assert_eq(events[0].slot, 1)

@@ -150,6 +150,7 @@ func _reason_text(reason: String) -> String:
 func _show_menu(error_text: String) -> void:
 	state = State.MENU
 	_clear_hud()
+	audio.stop_music()
 	_lobby = null
 	_world_view = null
 	var menu: MainMenu = _replace_screen(MAIN_MENU_SCENE)
@@ -162,6 +163,7 @@ func _show_menu(error_text: String) -> void:
 
 func _show_lobby(status: String) -> void:
 	_clear_hud()
+	audio.stop_music()
 	_world_view = null
 	_lobby = _replace_screen(LOBBY_SCENE)
 	_lobby.set_status(status)
@@ -340,6 +342,7 @@ func _on_game_started(level_index: int) -> void:
 		game_sync.start_as_client()
 	state = State.PLAYING
 	_show_world()
+	audio.start_music()
 
 
 ## Host : niveau suivant s'il existe, sinon fin de partie.
@@ -351,9 +354,9 @@ func _on_level_finished() -> void:
 		session.finish_game()
 
 
-## Bandeau d'une mort ou d'un level clear ; les autres événements sont muets.
+## Bandeau et son d'un événement de niveau. Hors partie, rien.
 func _on_level_event(kind: int, slot: int) -> void:
-	if hud == null:
+	if state != State.PLAYING or hud == null:
 		return
 	match kind:
 		SimEvent.Kind.DEATH:
@@ -362,8 +365,16 @@ func _on_level_event(kind: int, slot: int) -> void:
 			_death_names.append(session.roster.name_of(slot))
 			var names: String = (" " + tr("and") + " ").join(_death_names)
 			hud.show_banner(tr("%s died") % names, BANNER_DEATH_SEC)
+			audio.play("death")
 		SimEvent.Kind.LEVEL_CLEAR:
 			hud.show_banner(tr(BANNER_LEVEL_CLEAR), BANNER_CLEAR_SEC)
+			audio.play("clear")
+		SimEvent.Kind.KEY_TAKEN:
+			audio.play("key")
+		SimEvent.Kind.DOOR_OPENED:
+			audio.play("door")
+		SimEvent.Kind.JUMP:
+			audio.play("jump")
 
 
 func _on_game_finished() -> void:
@@ -374,6 +385,8 @@ func _on_game_finished() -> void:
 
 func _show_victory() -> void:
 	_clear_hud()
+	audio.stop_music()
+	audio.play("victory")
 	_world_view = null
 	var victory: Victory = _replace_screen(VICTORY_SCENE)
 	victory.set_roster(session.roster.to_dict(), session.is_host)
