@@ -219,6 +219,8 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 
 ## Jalons
 
+Livrés : jalon 0 (`v0.0.1`, 2026-11-06), jalon 1 (`v0.1.0`, 2026-11-06).
+
 - Jalon 0 : `sim core` minimal (marche, saut, collision tuiles), transport
   réseau, lobby minimal, un niveau vide, exports des trois plateformes en CI.
   Objectif : deux joueurs connectés via Internet qui bougent et sautent.

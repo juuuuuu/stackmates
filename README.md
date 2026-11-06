@@ -4,9 +4,9 @@ Jeu de plateforme coopératif en ligne pour 2 à 8 joueurs, inspiré des mécani
 de Pico Park. Un joueur héberge, les autres rejoignent via Internet. Windows,
 Linux, macOS.
 
-État : jalon 0 atteint (deux joueurs en ligne qui bougent et sautent dans un
-niveau vide). Les mécaniques de jeu (empilement, poussée, clé, porte, mort)
-arrivent au jalon 1. Voir `docs/design.md`.
+État : jalon 1 atteint (poussée, empilement, clé, porte, mort, en ligne).
+Les cinq niveaux, l'audio et les options arrivent au jalon 2. Voir
+`docs/design.md`.
 
 ## Jouer
 
@@ -27,6 +27,11 @@ arrivent au jalon 1. Voir `docs/design.md`.
    Join. Le `host` lance la partie avec Start.
 5. Commandes : flèches ou WASD (ZQSD en AZERTY) pour bouger, Espace ou flèche
    haut pour sauter, F11 pour le plein écran, Échap pour quitter la partie.
+6. Règles : ramasser la clé et l'amener à la porte pour l'ouvrir, puis tout
+   le monde doit entrer. Un joueur au sol pousse ceux qu'il touche, en
+   chaîne. On monte sur la tête des autres et on les suit : à deux on passe
+   un rebord de trois tuiles qu'un saut seul ne passe pas. Toucher un pique
+   ou tomber hors du niveau fait recommencer le niveau pour tout le monde.
 
 ## Développer
 
