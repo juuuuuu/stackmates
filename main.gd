@@ -4,13 +4,14 @@ extends Node
 ## Arguments après "--" : --host, --join=ADRESSE:PORT, --port=N, --name=PSEUDO,
 ## --smoke (test automatique : deux processus échangent inputs et snapshots).
 
-enum State { MENU, CONNECTING, LOBBY, PLAYING, VICTORY }
+enum State { MENU, CONNECTING, LOBBY, PLAYING, VICTORY, OPTIONS }
 
 const MAIN_MENU_SCENE: PackedScene = preload("res://ui/main_menu.tscn")
 const LOBBY_SCENE: PackedScene = preload("res://ui/lobby.tscn")
 const WORLD_VIEW_SCENE: PackedScene = preload("res://ui/world_view.tscn")
 const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
 const VICTORY_SCENE: PackedScene = preload("res://ui/victory.tscn")
+const OPTIONS_SCENE: PackedScene = preload("res://ui/options.tscn")
 const BANNER_DEATH_SEC: float = 1.0
 const BANNER_CLEAR_SEC: float = 1.5
 const BANNER_LEVEL_CLEAR: String = "Level clear"
@@ -57,6 +58,7 @@ var _death_names: Array[String] = []
 
 @onready var session: Session = $Session
 @onready var game_sync: GameSync = $GameSync
+@onready var audio: GameAudio = $GameAudio
 @onready var screen_root: Control = $ScreenRoot
 
 
@@ -64,6 +66,9 @@ func _ready() -> void:
 	var args: Dictionary[String, String] = _parse_args(OS.get_cmdline_user_args())
 	_smoke = args.has("smoke")
 	_settings = SettingsStore.load_from(settings_path)
+	audio.set_music_volume(_settings.music_volume)
+	audio.set_sfx_volume(_settings.sfx_volume)
+	_set_fullscreen(_settings.fullscreen)
 	game_sync.session = session
 	session.joined.connect(_on_joined)
 	session.join_failed.connect(_on_join_failed)
@@ -152,6 +157,7 @@ func _show_menu(error_text: String) -> void:
 	menu.show_error(error_text)
 	menu.host_requested.connect(_on_host_requested)
 	menu.join_requested.connect(_on_join_requested)
+	menu.options_requested.connect(_on_options_requested)
 
 
 func _show_lobby(status: String) -> void:
@@ -198,19 +204,62 @@ func _leave_to_menu(error_text: String) -> void:
 
 
 func _toggle_fullscreen() -> void:
+	_settings.fullscreen = not _settings.fullscreen
+	_set_fullscreen(_settings.fullscreen)
+	_persist_settings()
+
+
+func _set_fullscreen(enabled: bool) -> void:
 	var window: Window = get_window()
-	if window.mode == Window.MODE_FULLSCREEN:
-		window.mode = Window.MODE_WINDOWED
-	else:
-		window.mode = Window.MODE_FULLSCREEN
+	window.mode = Window.MODE_FULLSCREEN if enabled else Window.MODE_WINDOWED
+
+
+func _persist_settings() -> void:
+	if _settings.save_to(settings_path) != OK:
+		push_warning("settings not saved")
+
+
+func _show_options() -> void:
+	state = State.OPTIONS
+	var options: OptionsScreen = _replace_screen(OPTIONS_SCENE)
+	options.set_settings(_settings)
+	options.music_changed.connect(_on_music_changed)
+	options.sfx_changed.connect(_on_sfx_changed)
+	options.fullscreen_changed.connect(_on_fullscreen_changed)
+	options.closed.connect(_on_options_closed)
+
+
+func _on_options_requested() -> void:
+	_show_options()
+
+
+func _on_options_closed() -> void:
+	_show_menu("")
+
+
+func _on_music_changed(linear: float) -> void:
+	_settings.music_volume = linear
+	audio.set_music_volume(linear)
+	_persist_settings()
+
+
+func _on_sfx_changed(linear: float) -> void:
+	_settings.sfx_volume = linear
+	audio.set_sfx_volume(linear)
+	_persist_settings()
+
+
+func _on_fullscreen_changed(enabled: bool) -> void:
+	_settings.fullscreen = enabled
+	_set_fullscreen(enabled)
+	_persist_settings()
 
 
 func _save_settings(player_name: String, address: String, port: int) -> void:
 	_settings.player_name = player_name
 	_settings.last_address = address
 	_settings.last_port = port
-	if _settings.save_to(settings_path) != OK:
-		push_warning("settings not saved")
+	_persist_settings()
 
 
 # Session

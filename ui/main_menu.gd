@@ -4,6 +4,7 @@ extends Control
 
 signal host_requested(port: int, player_name: String)
 signal join_requested(address: String, port: int, player_name: String)
+signal options_requested
 
 const ERROR_EMPTY_NAME: String = "Enter a name"
 
@@ -12,6 +13,7 @@ const ERROR_EMPTY_NAME: String = "Enter a name"
 @onready var port_field: LineEdit = %PortField
 @onready var host_button: Button = %HostButton
 @onready var join_button: Button = %JoinButton
+@onready var options_button: Button = %OptionsButton
 @onready var error_label: Label = %ErrorLabel
 @onready var version_label: Label = %VersionLabel
 
@@ -19,6 +21,7 @@ const ERROR_EMPTY_NAME: String = "Enter a name"
 func _ready() -> void:
 	host_button.pressed.connect(_on_host_pressed)
 	join_button.pressed.connect(_on_join_pressed)
+	options_button.pressed.connect(options_requested.emit)
 	var version: String = str(ProjectSettings.get_setting("application/config/version", ""))
 	version_label.text = "v" + version
 	name_field.grab_focus()

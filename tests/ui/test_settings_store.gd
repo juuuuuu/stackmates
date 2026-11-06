@@ -16,3 +16,19 @@ func test_round_trip_and_defaults() -> void:
 	assert_eq(again.last_address, "10.0.0.2")
 	assert_eq(again.last_port, 28016)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
+func test_settings_round_trip_volumes() -> void:
+	var path: String = "user://test_settings_audio_%d.cfg" % Time.get_ticks_usec()
+	var s: SettingsStore = SettingsStore.load_from(path)
+	assert_eq(s.music_volume, 0.8)
+	assert_eq(s.fullscreen, false)
+	s.music_volume = 0.0
+	s.sfx_volume = 0.3
+	s.fullscreen = true
+	assert_eq(s.save_to(path), OK)
+	var again: SettingsStore = SettingsStore.load_from(path)
+	assert_eq(again.music_volume, 0.0)
+	assert_eq(again.sfx_volume, 0.3)
+	assert_true(again.fullscreen)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))

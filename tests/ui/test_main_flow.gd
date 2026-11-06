@@ -119,3 +119,12 @@ func test_out_of_range_level_index_is_ignored() -> void:
 	main._on_game_started(42)
 	assert_eq(main.state, main.State.LOBBY)
 	_press(main, "ui_cancel")
+
+
+func test_options_screen_opens_and_closes() -> void:
+	var main: Main = _main()
+	main._on_options_requested()
+	assert_eq(main.state, main.State.OPTIONS)
+	assert_not_null(main.screen_root.get_node_or_null("Options"))
+	main._on_options_closed()
+	assert_eq(main.state, main.State.MENU)
