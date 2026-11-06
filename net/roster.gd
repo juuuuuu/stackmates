@@ -29,8 +29,11 @@ func validate_join(
 	return ""
 
 
-## Donne le plus petit slot libre, ou -1 si la session est pleine.
+## Donne le plus petit slot libre, ou -1 si la session est pleine ou si le
+## pair a déjà un slot : un pair, un slot.
 func add(peer_id: int, player_name: String) -> int:
+	if slot_of(peer_id) != -1:
+		return -1
 	for slot: int in range(1, SimConstants.MAX_PLAYERS + 1):
 		if not _names.has(slot):
 			_names[slot] = player_name

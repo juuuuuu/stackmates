@@ -17,10 +17,11 @@ joueurs, `host-authoritative`.
   erreurs dans `project.godot`.
 - Une mécanique se construit en TDD avec GUT : test rouge dans `tests/`, puis le
   code dans `sim/` ou `net/`.
-- Tests : `godot --headless --path . --import` une fois après un ajout de
-  fichier, puis `godot --headless --path . -s addons/gut/gut_cmdln.gd -gexit`
-  (exit 0 si vert, 1 sinon). Sans `--import` préalable, GUT ne trouve pas ses
-  classes et sort en 0 sans rien lancer.
+- Tests : `bash tools/test.sh`, la seule commande de test. Elle importe le
+  projet puis lance GUT, et sort en 1 sur toute erreur de script. GUT seul sort
+  en 0 sans rien lancer si l'import manque ou si un test ne parse pas.
+- Smoke réseau : `bash tools/smoke.sh`. Avec un binaire exporté :
+  `STACKMATES_EXPORTED=1 GODOT=export/linux/stackmates.x86_64 bash tools/smoke.sh`.
 
 ## Workflow
 

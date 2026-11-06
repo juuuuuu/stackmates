@@ -50,3 +50,11 @@ func test_dict_round_trip() -> void:
 	copy.apply_dict(r.to_dict())
 	assert_eq(copy.slots(), [1, 2] as Array[int])
 	assert_eq(copy.name_of(2), "Guest")
+
+
+func test_add_same_peer_twice_is_refused() -> void:
+	var r: Roster = Roster.new()
+	assert_eq(r.add(50, "A"), 1)
+	assert_eq(r.add(50, "A again"), -1)
+	assert_eq(r.size(), 1)
+	assert_eq(r.name_of(1), "A")

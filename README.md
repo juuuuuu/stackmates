@@ -37,7 +37,8 @@ arrivent au jalon 1. Voir `docs/design.md`.
   main.gd` (`pip install "gdtoolkit==4.*"`, ou via Docker :
   `docker run --rm -v "$PWD:/w" -w /w python:3.12-slim sh -c 'pip install -q "gdtoolkit==4.*" && gdlint sim net ui levels tools tests main.gd && gdformat --check sim net ui levels tools tests main.gd'`).
 - Smoke test réseau : `bash tools/smoke.sh` (un `host` et un `client`
-  `headless` échangent inputs et snapshots).
+  `headless` échangent inputs et snapshots). Avec un binaire exporté :
+  `STACKMATES_EXPORTED=1 GODOT=export/linux/stackmates.x86_64 bash tools/smoke.sh`.
 - Exports : `bash tools/export_all.sh` (il faut les `export templates`
   4.7.2 : `bash tools/install_godot.sh ~/godot-bin --templates`).
 - Niveaux : éditer `levels/src/level_NN.txt` puis

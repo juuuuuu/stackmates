@@ -13,6 +13,9 @@ signal game_started(level_index: int)
 const PROTOCOL_VERSION: int = 1
 const DEFAULT_PORT: int = 28015
 const CONNECT_TIMEOUT_SEC: float = 10.0
+## Plus que MAX_PLAYERS : le refus "partie pleine" vient du handshake, avec sa
+## raison, pas d'un blocage ENet silencieux.
+const ENET_MAX_CLIENTS: int = 32
 const HOST_PEER_ID: int = 1
 const REASON_TIMEOUT: String = "timeout"
 const REASON_REFUSED: String = "refused"
@@ -25,6 +28,7 @@ var roster: Roster = Roster.new()
 var _peer: ENetMultiplayerPeer
 var _player_name: String = ""
 var _joining: bool = false
+var _join_attempt: int = 0
 
 
 func _ready() -> void:
@@ -37,7 +41,7 @@ func _ready() -> void:
 func host(port: int, player_name: String) -> Error:
 	_player_name = player_name
 	var peer: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
-	var error: Error = peer.create_server(port, SimConstants.MAX_PLAYERS - 1)
+	var error: Error = peer.create_server(port, ENET_MAX_CLIENTS)
 	if error != OK:
 		return error
 	_peer = peer
@@ -62,7 +66,9 @@ func join(address: String, port: int, player_name: String) -> Error:
 	local_slot = 0
 	roster = Roster.new()
 	_joining = true
-	get_tree().create_timer(CONNECT_TIMEOUT_SEC).timeout.connect(_on_join_timeout)
+	_join_attempt += 1
+	var timer: SceneTreeTimer = get_tree().create_timer(CONNECT_TIMEOUT_SEC)
+	timer.timeout.connect(_on_join_timeout.bind(_join_attempt))
 	return OK
 
 
@@ -117,8 +123,9 @@ func _on_server_disconnected() -> void:
 		host_left.emit()
 
 
-func _on_join_timeout() -> void:
-	if _joining:
+## Le timer d'une tentative abandonnée (leave puis nouveau join) est ignoré.
+func _on_join_timeout(attempt: int) -> void:
+	if _joining and attempt == _join_attempt:
 		_fail(REASON_TIMEOUT)
 
 
@@ -138,6 +145,8 @@ func _request_join(protocol_version: int, player_name: String) -> void:
 	if not is_host:
 		return
 	var peer_id: int = multiplayer.get_remote_sender_id()
+	if roster.slot_of(peer_id) != -1:
+		return
 	var reason: String = roster.validate_join(
 		protocol_version, PROTOCOL_VERSION, player_name, in_progress
 	)
