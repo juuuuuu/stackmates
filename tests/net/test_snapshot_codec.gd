@@ -56,3 +56,29 @@ func test_from_simulation() -> void:
 	assert_eq(s.positions[0], sim.get_player(1).position)
 	assert_true(bool(s.flags[1] & Snapshot.FLAG_FACING_LEFT))
 	assert_true(bool(s.flags[0] & Snapshot.FLAG_ON_GROUND))
+
+
+func test_from_simulation_sets_level_and_player_flags() -> void:
+	var sim: Simulation = Simulation.new(Level.from_rows(["S.K.D^S", "#######"]))
+	sim.add_player(1)
+	sim.add_player(2)
+	sim.set_input(1, InputBits.RIGHT)
+	for i: int in 15:
+		sim.step()
+	var s: Snapshot = Snapshot.from_simulation(sim)
+	assert_true(bool(s.level_flags & Snapshot.LEVEL_FLAG_KEY_TAKEN))
+	assert_false(bool(s.level_flags & Snapshot.LEVEL_FLAG_DOOR_OPEN))
+	assert_true(bool(s.flags[0] & Snapshot.FLAG_KEY_CARRIER))
+	for i: int in 25:
+		sim.step()
+	s = Snapshot.from_simulation(sim)
+	assert_true(bool(s.level_flags & Snapshot.LEVEL_FLAG_DOOR_OPEN))
+	assert_true(bool(s.flags[0] & Snapshot.FLAG_ENTERED))
+	assert_false(bool(s.flags[0] & Snapshot.FLAG_KEY_CARRIER))
+	sim.restart()
+	sim.set_input(2, InputBits.LEFT)
+	for i: int in 2:
+		sim.step()
+	s = Snapshot.from_simulation(sim)
+	assert_true(bool(s.flags[1] & Snapshot.FLAG_DEAD))
+	assert_eq(SnapshotCodec.decode(SnapshotCodec.encode(s)).flags[1], s.flags[1])
