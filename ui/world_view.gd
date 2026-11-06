@@ -11,6 +11,9 @@ const DEAD_MODULATE: Color = Color(0.45, 0.45, 0.45)
 const ATLAS_KEY: int = 2
 const ATLAS_DOOR_CLOSED: int = 3
 const ATLAS_DOOR_OPEN: int = 4
+## La door se dessine sur deux tuiles : son sprite part de la tuile au-dessus.
+const DOOR_HEIGHT_TILES: int = 2
+const DOOR_SPRITE_OFFSET: Vector2 = Vector2(0, -SimConstants.TILE_SIZE)
 const LOCAL_MARKER_SEC: float = 3.0
 ## Le label fait 23 px de haut : son bas reste 3 px au-dessus du sprite.
 const LOCAL_MARKER_OFFSET: Vector2 = Vector2(-6, -26)
@@ -29,7 +32,7 @@ var _marker_remaining_sec: float = 0.0
 
 func _ready() -> void:
 	_setup_tile_sprite(_key, ATLAS_KEY)
-	_setup_tile_sprite(_door, ATLAS_DOOR_CLOSED)
+	_setup_door_sprite()
 	_key.visible = false
 	_door.visible = false
 	_local_marker.visible = false
@@ -59,7 +62,7 @@ func show_level(level_scene: PackedScene, level: Level) -> void:
 	_level_root.add_child(level_scene.instantiate())
 	_level = level
 	_door.visible = level.door_tile != Level.NO_TILE
-	_door.position = Vector2(level.door_tile) * SimConstants.TILE_SIZE
+	_door.position = Vector2(level.door_tile) * SimConstants.TILE_SIZE + DOOR_SPRITE_OFFSET
 	_key.visible = level.has_key()
 	_key.position = Vector2(level.key_tile) * SimConstants.TILE_SIZE
 
@@ -104,7 +107,7 @@ func _show_level_state(frame: Snapshot) -> void:
 	if _level == null:
 		return
 	var door_open: bool = (frame.level_flags & Snapshot.LEVEL_FLAG_DOOR_OPEN) != 0
-	_set_atlas(_door, ATLAS_DOOR_OPEN if door_open else ATLAS_DOOR_CLOSED)
+	_set_door_atlas(door_open)
 	if not _level.has_key() or door_open:
 		_key.visible = false
 		return
@@ -135,6 +138,19 @@ func _setup_tile_sprite(sprite: Sprite2D, atlas_index: int) -> void:
 static func _set_atlas(sprite: Sprite2D, atlas_index: int) -> void:
 	var size: int = SimConstants.TILE_SIZE
 	sprite.region_rect = Rect2(size * atlas_index, 0, size, size)
+
+
+func _setup_door_sprite() -> void:
+	_door.centered = false
+	_door.texture = TILES_TEXTURE
+	_door.region_enabled = true
+	_set_door_atlas(false)
+
+
+func _set_door_atlas(opened: bool) -> void:
+	var size: int = SimConstants.TILE_SIZE
+	var index: int = ATLAS_DOOR_OPEN if opened else ATLAS_DOOR_CLOSED
+	_door.region_rect = Rect2(size * index, 0, size, size * DOOR_HEIGHT_TILES)
 
 
 func _sprite_for(slot: int) -> Sprite2D:

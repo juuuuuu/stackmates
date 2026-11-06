@@ -64,10 +64,10 @@ func test_key_at_tile_then_above_carrier_then_hidden() -> void:
 func test_door_sprite_follows_open_flag() -> void:
 	var view: WorldView = _view()
 	view.show_frame(_frame([]))
-	assert_eq(view.door_sprite().position, Vector2(64, 0))
-	assert_eq(view.door_sprite().region_rect, Rect2(48, 0, 16, 16))
+	assert_eq(view.door_sprite().position, Vector2(64, -16))
+	assert_eq(view.door_sprite().region_rect, Rect2(48, 0, 16, 32))
 	view.show_frame(_frame([], Snapshot.LEVEL_FLAG_DOOR_OPEN))
-	assert_eq(view.door_sprite().region_rect, Rect2(64, 0, 16, 16))
+	assert_eq(view.door_sprite().region_rect, Rect2(64, 0, 16, 32))
 
 
 func test_entered_player_is_hidden_then_removed() -> void:
@@ -111,3 +111,12 @@ func test_local_marker_sits_above_the_sprite() -> void:
 		marker_bottom <= sprite.position.y,
 		"bas du marqueur %f, haut du sprite %f" % [marker_bottom, sprite.position.y]
 	)
+
+
+func test_door_sprite_spans_two_tiles_from_the_tile_above() -> void:
+	var view: WorldView = _view()
+	var door: Sprite2D = view.door_sprite()
+	assert_eq(door.region_rect, Rect2(48, 0, 16, 32), "fermée : colonne 3 de l'atlas")
+	assert_eq(door.position, Vector2(64, -16), "une tuile au-dessus de la door (4, 0)")
+	view.show_frame(_frame([[1, Vector2(0, 0), 0]], Snapshot.LEVEL_FLAG_DOOR_OPEN))
+	assert_eq(door.region_rect, Rect2(64, 0, 16, 32), "ouverte : colonne 4 de l'atlas")

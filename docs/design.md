@@ -183,7 +183,10 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 - Placeholders faits maison (les packs pixel de Kenney sont en 18 px, pas 16).
 - Joueurs : carrés colorés avec deux yeux. Palette fixe de 8 couleurs : rouge,
   bleu, vert, jaune, violet, orange, cyan, rose.
-- Tuiles : aplats unis (sol, `spike` triangulaire, clé, porte fermée et ouverte).
+- Tuiles : aplats unis (sol, `spike` triangulaire rouge à pointe claire, clé,
+  porte). La porte est une arche de deux tuiles de haut à cadre de pierre
+  clair, battant en bois fermé ou ouverture noire ; son sprite part de la tuile
+  au-dessus de la `door`, qui reste vide dans chaque niveau.
 - PNG générés par un script Python (Pillow) commité dans `tools/`, donc
   reproductibles et remplaçables par du vrai pixel art.
 - Effets sonores (saut, mort, clé, porte, victoire) et boucle musicale générés
