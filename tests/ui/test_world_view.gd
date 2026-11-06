@@ -88,3 +88,13 @@ func test_dead_player_is_greyed() -> void:
 	assert_eq(p1.modulate, WorldView.DEAD_MODULATE)
 	view.show_frame(_frame([[1, Vector2(0, 0), 0]]))
 	assert_eq(p1.modulate, Color.WHITE)
+
+
+func test_local_marker_follows_then_hides() -> void:
+	var view: WorldView = _view()
+	view.set_local_slot(2)
+	view.show_frame(_frame([[1, Vector2(0, 0), 0], [2, Vector2(40, 60), 0]]))
+	assert_true(view.local_marker_visible())
+	view._process(3.5)
+	view.show_frame(_frame([[2, Vector2(40, 60), 0]]))
+	assert_false(view.local_marker_visible())

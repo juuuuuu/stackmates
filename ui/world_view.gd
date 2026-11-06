@@ -11,14 +11,19 @@ const DEAD_MODULATE: Color = Color(0.45, 0.45, 0.45)
 const ATLAS_KEY: int = 2
 const ATLAS_DOOR_CLOSED: int = 3
 const ATLAS_DOOR_OPEN: int = 4
+const LOCAL_MARKER_SEC: float = 3.0
+const LOCAL_MARKER_OFFSET: Vector2 = Vector2(-4, -14)
 
 var _sprites: Dictionary[int, Sprite2D] = {}
 var _level: Level
+var _local_slot: int = 0
+var _marker_remaining_sec: float = 0.0
 
 @onready var _level_root: Node2D = $LevelRoot
 @onready var _players: Node2D = $Players
 @onready var _key: Sprite2D = $Key
 @onready var _door: Sprite2D = $Door
+@onready var _local_marker: Label = $LocalMarker
 
 
 func _ready() -> void:
@@ -26,6 +31,22 @@ func _ready() -> void:
 	_setup_tile_sprite(_door, ATLAS_DOOR_CLOSED)
 	_key.visible = false
 	_door.visible = false
+	_local_marker.visible = false
+
+
+## Relance le marqueur "You" au-dessus du player local pour LOCAL_MARKER_SEC.
+func set_local_slot(slot: int) -> void:
+	_local_slot = slot
+	_marker_remaining_sec = LOCAL_MARKER_SEC
+
+
+func local_marker_visible() -> bool:
+	return _local_marker.visible
+
+
+func _process(delta: float) -> void:
+	if _marker_remaining_sec > 0.0:
+		_marker_remaining_sec -= delta
 
 
 ## Remplace le level affiché par une instance de la scène donnée, et place
@@ -61,6 +82,7 @@ func show_frame(frame: Snapshot) -> void:
 			_players.remove_child(sprite)
 			sprite.queue_free()
 	_show_level_state(frame)
+	_show_local_marker(frame)
 
 
 func sprite_count() -> int:
@@ -127,3 +149,11 @@ func _sprite_for(slot: int) -> Sprite2D:
 	_players.add_child(sprite)
 	_sprites[slot] = sprite
 	return sprite
+
+
+func _show_local_marker(frame: Snapshot) -> void:
+	var index: int = frame.index_of(_local_slot)
+	var shown: bool = _marker_remaining_sec > 0.0 and index != -1
+	_local_marker.visible = shown
+	if shown:
+		_local_marker.position = frame.positions[index] + LOCAL_MARKER_OFFSET

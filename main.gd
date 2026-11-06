@@ -4,12 +4,13 @@ extends Node
 ## Arguments après "--" : --host, --join=ADRESSE:PORT, --port=N, --name=PSEUDO,
 ## --smoke (test automatique : deux processus échangent inputs et snapshots).
 
-enum State { MENU, CONNECTING, LOBBY, PLAYING }
+enum State { MENU, CONNECTING, LOBBY, PLAYING, VICTORY }
 
 const MAIN_MENU_SCENE: PackedScene = preload("res://ui/main_menu.tscn")
 const LOBBY_SCENE: PackedScene = preload("res://ui/lobby.tscn")
 const WORLD_VIEW_SCENE: PackedScene = preload("res://ui/world_view.tscn")
 const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
+const VICTORY_SCENE: PackedScene = preload("res://ui/victory.tscn")
 const BANNER_DEATH_SEC: float = 1.0
 const BANNER_CLEAR_SEC: float = 1.5
 const BANNER_LEVEL_CLEAR: String = "Level clear"
@@ -169,6 +170,7 @@ func _show_world() -> void:
 	_lobby = null
 	_world_view = _replace_screen(WORLD_VIEW_SCENE)
 	_world_view.show_level(_level_scene, _level)
+	_world_view.set_local_slot(session.local_slot)
 	if hud == null:
 		hud = HUD_SCENE.instantiate()
 		add_child(hud)
@@ -311,6 +313,21 @@ func _on_level_event(kind: int, slot: int) -> void:
 
 func _on_game_finished() -> void:
 	game_sync.stop()
+	state = State.VICTORY
+	_show_victory()
+
+
+func _show_victory() -> void:
+	_clear_hud()
+	_world_view = null
+	var victory: Victory = _replace_screen(VICTORY_SCENE)
+	victory.set_roster(session.roster.to_dict(), session.is_host)
+	victory.back_requested.connect(_on_victory_back)
+
+
+func _on_victory_back() -> void:
+	if state != State.VICTORY:
+		return
 	state = State.LOBBY
 	_show_lobby(STATUS_LEVEL_CLEAR)
 

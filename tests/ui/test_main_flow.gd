@@ -54,10 +54,12 @@ func test_last_level_finished_returns_to_lobby() -> void:
 	main._on_host_requested(TEST_PORT, "Ju")
 	main.session.start_game(LevelList.PATHS.size() - 1)
 	main.game_sync.level_finished.emit()
+	assert_eq(main.state, main.State.VICTORY)
+	assert_false(main.session.in_progress)
+	main._on_victory_back()
 	assert_eq(main.state, main.State.LOBBY)
 	var lobby: Lobby = main.screen_root.get_node("Lobby")
 	assert_eq(lobby.status_label.text, "Level clear!")
-	assert_false(main.session.in_progress)
 	_press(main, "ui_cancel")
 
 
@@ -76,4 +78,17 @@ func test_level_select_starts_at_chosen_index() -> void:
 	main._on_start_requested(3)
 	assert_eq(main.state, main.State.PLAYING)
 	assert_eq(main._level_index, 3)
+	_press(main, "ui_cancel")
+
+
+func test_victory_then_lobby_resets_screen() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(4)
+	main.game_sync.level_finished.emit()
+	assert_eq(main.state, main.State.VICTORY)
+	assert_not_null(main.screen_root.get_node_or_null("Victory"))
+	main._on_victory_back()
+	assert_eq(main.state, main.State.LOBBY)
+	assert_null(main.screen_root.get_node_or_null("Victory"))
 	_press(main, "ui_cancel")
