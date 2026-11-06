@@ -4,9 +4,8 @@ Jeu de plateforme coopératif en ligne pour 2 à 8 joueurs, inspiré des mécani
 de Pico Park. Un joueur héberge, les autres rejoignent via Internet. Windows,
 Linux, macOS.
 
-État : jalon 2 atteint (cinq niveaux, lobby complet, sons et musique,
-options, menu Échap, interface en anglais et en français). Voir
-`docs/design.md`.
+État : jalon 3 atteint, le dernier de la spec (publication itch.io par la
+CI, logs horodatés, documentation d'installation). Voir `docs/design.md`.
 
 ## Jouer
 
