@@ -92,3 +92,35 @@ func test_level_03_walking_into_a_spike_kills() -> void:
 	Walkthrough.idle_all(sim)
 	assert_false(Walkthrough.walk_to(sim, 1, 300.0))
 	assert_true(sim.get_player(1).dead)
+
+
+func test_level_04_corridor_push_chain() -> void:
+	# Le player 2 spawne devant : poussé jusqu'au fond, il prend la key. Le
+	# player 1 le suit dans le couloir, puis le 2 ressort en poussant le 1.
+	var sim: Simulation = Simulation.new(Walkthrough.load_level("res://levels/level_04.tscn"))
+	sim.add_player(1)
+	sim.add_player(2)
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 2, 592.0))
+	assert_eq(sim.key_carrier, 2)
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 1, 500.0))
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 2, 200.0))
+	assert_lt(sim.get_player(1).position.x, 200.0)
+	for slot: int in [1, 2]:
+		assert_true(Walkthrough.walk_to(sim, slot, 150.0))
+		Walkthrough.jump_toward(sim, slot, -1)
+		assert_true(Walkthrough.walk_to(sim, slot, 80.0))
+		Walkthrough.idle_all(sim)
+	assert_true(sim.door_open)
+	assert_true(sim.is_level_clear())
+
+
+func test_level_04_no_jumping_in_the_corridor() -> void:
+	var sim: Simulation = Simulation.new(Walkthrough.load_level("res://levels/level_04.tscn"))
+	sim.add_player(1)
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 1, 400.0))
+	Walkthrough.jump_toward(sim, 1, 0, 10)
+	assert_eq(sim.get_player(1).position.y, 320.0)
