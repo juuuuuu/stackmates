@@ -79,7 +79,7 @@ func test_death_event_shows_name_in_banner() -> void:
 	TranslationServer.set_locale("fr")
 	main._on_level_event(SimEvent.Kind.DEATH, 1)
 	TranslationServer.set_locale("en")
-	assert_eq(main.hud.banner_text(), "Ju et Ju est mort")
+	assert_eq(main.hud.banner_text(), "Mort de Ju et Ju")
 	_press(main, "ui_cancel")
 
 
@@ -176,3 +176,17 @@ func test_escape_in_lobby_leaves() -> void:
 	main._on_host_requested(TEST_PORT, "Ju")
 	_press(main, "ui_cancel")
 	assert_eq(main.state, main.State.MENU)
+
+
+func test_victory_closes_pause_menu() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(4)
+	_press(main, "ui_cancel")
+	assert_not_null(main.pause_menu)
+	main.game_sync.level_finished.emit()
+	assert_eq(main.state, main.State.VICTORY)
+	assert_null(main.pause_menu)
+	assert_false(main.is_input_blocked())
+	main._on_victory_back()
+	_press(main, "ui_cancel")

@@ -17,7 +17,6 @@ const SOUNDS: Dictionary[String, String] = {
 }
 const MUSIC_PATH: String = "res://assets/audio/music.wav"
 const SFX_PLAYERS: int = 6
-const BYTES_PER_SAMPLE: int = 2
 
 ## Le dernier son demandé, pour les tests.
 var last_played: String = ""
@@ -68,14 +67,20 @@ func is_music_playing() -> bool:
 	return _music.playing
 
 
-## La musique importée, dupliquée et bouclée sur toute sa longueur.
+## La musique importée, dupliquée et bouclée sur toute sa longueur. L'importeur
+## compresse en QOA : la longueur en échantillons vient de get_length(), pas de
+## data.size().
 static func _looping_music() -> AudioStreamWAV:
 	var source: AudioStreamWAV = load(MUSIC_PATH)
 	var music: AudioStreamWAV = source.duplicate()
 	music.loop_mode = AudioStreamWAV.LOOP_FORWARD
 	music.loop_begin = 0
-	music.loop_end = floori(music.data.size() / float(BYTES_PER_SAMPLE))
+	music.loop_end = roundi(music.get_length() * music.mix_rate)
 	return music
+
+
+func music_stream() -> AudioStreamWAV:
+	return _music.stream as AudioStreamWAV
 
 
 func set_music_volume(linear: float) -> void:

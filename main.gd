@@ -453,6 +453,7 @@ func _on_game_finished() -> void:
 
 
 func _show_victory() -> void:
+	_close_pause_menu()
 	_clear_hud()
 	audio.stop_music()
 	audio.play("victory")

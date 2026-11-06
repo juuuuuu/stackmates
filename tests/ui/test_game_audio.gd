@@ -31,3 +31,13 @@ func test_music_starts_and_stops() -> void:
 	assert_true(audio.is_music_playing())
 	audio.stop_music()
 	assert_false(audio.is_music_playing())
+
+
+func test_music_loops_on_its_full_length() -> void:
+	# L'importeur WAV compresse en QOA : data.size() ne donne pas les échantillons.
+	var audio: GameAudio = add_child_autofree(GameAudio.new())
+	var stream: AudioStreamWAV = audio.music_stream()
+	var expected: int = roundi(stream.get_length() * stream.mix_rate)
+	assert_eq(stream.loop_mode, AudioStreamWAV.LOOP_FORWARD)
+	assert_eq(stream.loop_end, expected)
+	assert_gt(stream.get_length(), 10.0)
