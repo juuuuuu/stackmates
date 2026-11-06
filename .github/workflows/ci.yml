@@ -20,6 +20,8 @@ jobs:
       - run: pip install "gdtoolkit==4.*"
       - run: gdlint sim net ui levels tools tests main.gd
       - run: gdformat --check sim net ui levels tools tests main.gd
+      - run: bash tools/check_typography.sh
+      - run: bash tools/publish_itch_test.sh
 
   test:
     runs-on: ubuntu-latest
@@ -74,3 +76,23 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" dist/*.zip --generate-notes
+
+  publish:
+    needs: [export]
+    if: startsWith(github.ref, 'refs/tags/v') && vars.ITCH_TARGET != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: stackmates-${{ github.ref_name }}
+          path: dist
+      - uses: actions/cache@v4
+        with:
+          path: ~/butler-bin
+          key: butler-15.32.0
+      - run: bash tools/install_butler.sh ~/butler-bin
+      - env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          ITCH_TARGET: ${{ vars.ITCH_TARGET }}
+        run: BUTLER=~/butler-bin/butler bash tools/publish_itch.sh "$GITHUB_REF_NAME"
