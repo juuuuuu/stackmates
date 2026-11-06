@@ -11,7 +11,6 @@ signal level_restarted
 signal level_finished
 
 const SNAPSHOT_INTERVAL_TICKS: int = 2
-const HOST_PEER_ID: int = 1
 
 var session: Session
 var simulation: Simulation
@@ -79,7 +78,7 @@ func _physics_process(_delta: float) -> void:
 		_host_tick(bits)
 	else:
 		_local_tick += 1
-		_send_input.rpc_id(HOST_PEER_ID, _local_tick, bits)
+		_send_input.rpc_id(Session.HOST_PEER_ID, _local_tick, bits)
 
 
 func _host_tick(bits: int) -> void:

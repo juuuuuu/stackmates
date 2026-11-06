@@ -201,7 +201,7 @@ finish() {
 
 run_wizard() {
 
-TOTAL_STAGES=6
+TOTAL_STAGES=7
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 DRY_RUN=0
@@ -214,6 +214,7 @@ visit() {
 
 banner "Stackmates : configuration itch.io"
 (( DRY_RUN )) && note "Mode dry-run : rien n'est envoyé à GitHub."
+note "Ce wizard ne mémorise rien : à une relance, tout est redemandé."
 
 # ── 1 ─────────────────────────────────────────────────────────────────────
 stage "Compte itch.io"
@@ -245,6 +246,22 @@ ITCH_TARGET="$ITCH_USER/stackmates"
 say "Cible butler : $ITCH_TARGET"
 
 # ── 3 ─────────────────────────────────────────────────────────────────────
+stage "Accès GitHub"
+say "Le secret et la variable partent sur le dépôt via gh, avant de te demander la clé."
+if (( DRY_RUN )); then
+  note "(dry-run) gh auth status ; gh repo view"
+elif ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
+  warn "gh absent ou non connecté : installe gh, lance « gh auth login », puis relance."
+  exit 1
+else
+  REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner 2>&1)" || {
+    warn "gh ne résout pas le dépôt depuis $REPO_DIR : $REPO"
+    exit 1
+  }
+  say "Dépôt : $REPO"
+fi
+
+# ── 4 ─────────────────────────────────────────────────────────────────────
 stage "Clé API butler"
 say "butler s'authentifie en CI avec une clé API de ton compte."
 visit "https://itch.io/user/settings/api-keys"
@@ -253,7 +270,7 @@ step "Copie la clé affichée dans la liste. Elle reste secrète : ne la colle n
 ask_secret BUTLER_API_KEY "Colle la clé (saisie masquée) :"
 [[ -n "$BUTLER_API_KEY" ]] || { warn "clé vide"; exit 1; }
 
-# ── 4 ─────────────────────────────────────────────────────────────────────
+# ── 5 ─────────────────────────────────────────────────────────────────────
 stage "Secret GitHub BUTLER_API_KEY"
 say "Le job publish de la CI lit secrets.BUTLER_API_KEY. Dépôt : $(git remote get-url origin 2>/dev/null || echo '?')."
 if (( DRY_RUN )); then
@@ -263,7 +280,7 @@ else
 fi
 unset BUTLER_API_KEY
 
-# ── 5 ─────────────────────────────────────────────────────────────────────
+# ── 6 ─────────────────────────────────────────────────────────────────────
 stage "Variable GitHub ITCH_TARGET"
 say "Le job publish ne tourne que si vars.ITCH_TARGET existe : $ITCH_TARGET."
 if (( DRY_RUN )); then
@@ -272,7 +289,7 @@ else
   set_var ITCH_TARGET "$ITCH_TARGET"
 fi
 
-# ── 6 ─────────────────────────────────────────────────────────────────────
+# ── 7 ─────────────────────────────────────────────────────────────────────
 stage "Vérification et suite"
 if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
   if gh secret list 2>/dev/null | grep -q '^BUTLER_API_KEY'; then

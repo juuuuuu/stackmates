@@ -428,7 +428,7 @@ func _on_game_started(level_index: int) -> void:
 func _on_level_finished() -> void:
 	GameLog.info("game", "level %d finished" % _level_index)
 	var next_index: int = _level_index + 1
-	if next_index < LevelList.PATHS.size():
+	if next_index < LevelList.count():
 		session.start_game(next_index)
 	else:
 		session.finish_game()

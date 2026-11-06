@@ -26,7 +26,8 @@ joueurs, `host-authoritative`.
   `STACKMATES_EXPORTED=1 GODOT=export/linux/stackmates.x86_64 bash tools/smoke.sh`.
 - Publication itch.io : `tools/publish_itch.sh`, variable `ITCH_TARGET` et
   secret `BUTLER_API_KEY` sur le dépôt ; la release GitHub ne dépend pas
-  d'itch.io.
+  d'itch.io. Si le job `publish` échoue après un premier zip, relancer le job :
+  butler renvoie un build déjà poussé sans le dupliquer.
 
 ## Workflow
 

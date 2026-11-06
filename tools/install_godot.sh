@@ -14,7 +14,7 @@ fi
 BASE="https://github.com/godotengine/godot-builds/releases/download/${VERSION}-stable"
 mkdir -p "$DIR"
 if [ ! -x "$DIR/godot" ]; then
-	curl -sSL -o "$DIR/godot.zip" "$BASE/Godot_v${VERSION}-stable_linux.x86_64.zip"
+	curl -fsSL -o "$DIR/godot.zip" "$BASE/Godot_v${VERSION}-stable_linux.x86_64.zip"
 	unzip -q -o "$DIR/godot.zip" -d "$DIR"
 	mv "$DIR/Godot_v${VERSION}-stable_linux.x86_64" "$DIR/godot"
 	chmod +x "$DIR/godot"
@@ -26,7 +26,7 @@ if [ "$WITH_TEMPLATES" = 1 ]; then
 	if [ ! -f "$TEMPLATES_DIR/version.txt" ]; then
 		TPZ="$DIR/templates.tpz"
 		if [ ! -f "$TPZ" ]; then
-			curl -sSL -o "$TPZ" "$BASE/Godot_v${VERSION}-stable_export_templates.tpz"
+			curl -fsSL -o "$TPZ" "$BASE/Godot_v${VERSION}-stable_export_templates.tpz"
 		fi
 		rm -rf "$DIR/templates_tmp"
 		unzip -q -o "$TPZ" -d "$DIR/templates_tmp"
