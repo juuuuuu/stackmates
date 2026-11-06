@@ -75,6 +75,13 @@ var _upnp_opener: UpnpOpener
 @onready var screen_root: Control = $ScreenRoot
 
 
+## À la sortie (fermeture de la fenêtre comprise), les réglages en cours sont
+## écrits : un curseur réglé depuis l'écran Options n'est pas perdu.
+func _exit_tree() -> void:
+	if _settings != null:
+		_persist_settings()
+
+
 func _ready() -> void:
 	var args: Dictionary[String, String] = _parse_args(OS.get_cmdline_user_args())
 	_smoke = args.has("smoke")

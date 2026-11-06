@@ -242,8 +242,9 @@ Livrés : jalon 0 (`v0.0.1`, 2026-11-06), jalon 1 (`v0.1.0`, 2026-11-06),
 jalon 2 (`v0.2.0`, 2026-11-06 : cinq niveaux, choix du niveau, écran de
 victoire, lobby réseau, audio, options, menu Échap, traduction), jalon 3
 (`v0.3.0`, 2026-11-06 : publication itch.io par la CI, logs horodatés,
-documentation d'installation et page itch.io), jalon 4 (`v0.4.0`, 2026-11-06 :
-finitions avant sortie publique, mineurs des revues 0 à 3, CI robuste).
+documentation d'installation et page itch.io), jalon 4 (`v0.4.1`, 2026-11-06 :
+finitions avant sortie publique, mineurs des revues 0 à 3, CI robuste ; `v0.4.0`
+perdait une ouverture `UPnP` demandée pendant une fermeture).
 
 - Jalon 0 : `sim core` minimal (marche, saut, collision tuiles), transport
   réseau, lobby minimal, un niveau vide, exports des trois plateformes en CI.

@@ -83,3 +83,26 @@ func test_close_requested_during_open_runs_after_it() -> void:
 	opener.close()
 	await wait_frames(2)
 	assert_eq(calls, ["discover", "add 28015", "discover", "delete 28015"])
+
+
+func test_open_requested_during_close_runs_after_it_on_its_own_port() -> void:
+	var calls: Array[String] = []
+	var opener: UpnpOpener = _opener(true, calls)
+	watch_signals(opener)
+	opener.open(28015)
+	await wait_frames(1)
+	opener.close()
+	opener.open(28016)
+	await wait_frames(3)
+	assert_eq(calls, ["discover", "add 28015", "discover", "delete 28015", "discover", "add 28016"])
+	assert_signal_emit_count(opener, "finished", 2)
+
+
+func test_open_requested_during_pending_close_runs_last() -> void:
+	var calls: Array[String] = []
+	var opener: UpnpOpener = _opener(true, calls)
+	opener.open(28015)
+	opener.close()
+	opener.open(28016)
+	await wait_frames(3)
+	assert_eq(calls, ["discover", "add 28015", "discover", "delete 28015", "discover", "add 28016"])

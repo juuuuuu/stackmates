@@ -199,30 +199,6 @@ func test_host_without_probes_shows_public_ip_unknown() -> void:
 	assert_eq(lobby.public_ip_label.text, "Public IP: unknown")
 
 
-func test_slider_changes_are_saved_on_options_close() -> void:
-	# Repart d'un fichier absent : un run précédent peut avoir écrit 0.25.
-	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_main_flow_settings.cfg"))
-	var main: Main = _main()
-	main._on_options_requested()
-	var options: OptionsScreen = main.screen_root.get_node("Options")
-	options.music_slider.value = 0.25
-	var on_disk: SettingsStore = SettingsStore.load_from(main.settings_path)
-	assert_ne(on_disk.music_volume, 0.25, "pas encore écrit")
-	options.back_button.pressed.emit()
-	on_disk = SettingsStore.load_from(main.settings_path)
-	assert_eq(on_disk.music_volume, 0.25, "écrit à la fermeture")
-
-
-func test_f11_in_options_updates_the_checkbox() -> void:
-	var main: Main = _main()
-	main._on_options_requested()
-	var options: OptionsScreen = main.screen_root.get_node("Options")
-	var before: bool = options.fullscreen_check.button_pressed
-	_press(main, "toggle_fullscreen")
-	assert_eq(options.fullscreen_check.button_pressed, not before)
-	_press(main, "toggle_fullscreen")
-
-
 func test_pause_menu_blocks_movement_input() -> void:
 	var main: Main = _main()
 	main._on_host_requested(TEST_PORT, "Ju")

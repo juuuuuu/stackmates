@@ -7,8 +7,6 @@ enum Tile { EMPTY, SOLID, SPIKE }
 ## Retrait sur les bords droit et bas d'un rect, pour que deux rects qui se
 ## touchent ne se recouvrent pas.
 const EDGE_EPSILON: float = 0.001
-## La zone létale d'un spike est la base de sa tile : 10 px de large, 10 px de
-## haut, posée au bas de la tile. Un sauteur passe dès 10 px de hauteur.
 ## Zone létale de 6 px de côté au centre de la base de la tile : un marcheur
 ## meurt, et la fenêtre de départ de saut devant un spike isolé fait au moins
 ## 12 ticks (tests/sim/test_spike_window.gd).
