@@ -7,13 +7,18 @@ const HEIGHT: int = 22
 const CHAR_SOLID: String = "#"
 const CHAR_SPIKE: String = "^"
 const CHAR_SPAWN: String = "S"
+const CHAR_KEY: String = "K"
+const CHAR_DOOR: String = "D"
+const NO_TILE: Vector2i = Vector2i(-1, -1)
 
 var grid: TileGrid
 var spawns: Array[Vector2i] = []
+var key_tile: Vector2i = NO_TILE
+var door_tile: Vector2i = NO_TILE
 
 
 ## Construit un level depuis des lignes de texte : '#' solid, '^' spike,
-## 'S' spawn, tout autre caractère vide.
+## 'S' spawn, 'K' key, 'D' door, tout autre caractère vide.
 static func from_rows(rows: Array[String]) -> Level:
 	var level: Level = Level.new()
 	var rows_count: int = rows.size()
@@ -31,4 +36,25 @@ static func from_rows(rows: Array[String]) -> Level:
 				level.grid.set_tile(x, y, TileGrid.Tile.SPIKE)
 			elif c == CHAR_SPAWN:
 				level.spawns.append(Vector2i(x, y))
+			elif c == CHAR_KEY:
+				level.key_tile = Vector2i(x, y)
+			elif c == CHAR_DOOR:
+				level.door_tile = Vector2i(x, y)
 	return level
+
+
+func has_key() -> bool:
+	return key_tile != NO_TILE
+
+
+func key_rect() -> Rect2:
+	return _tile_rect(key_tile)
+
+
+func door_rect() -> Rect2:
+	return _tile_rect(door_tile)
+
+
+static func _tile_rect(tile: Vector2i) -> Rect2:
+	var size: int = SimConstants.TILE_SIZE
+	return Rect2(tile.x * size, tile.y * size, size, size)

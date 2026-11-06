@@ -8,6 +8,11 @@ var tick: int = 0
 var players: Array[PlayerState] = []
 ## Gelée après une mort ou un level clear, jusqu'au restart.
 var halted: bool = false
+## Slot du key carrier, 0 si personne ne porte la key.
+var key_carrier: int = 0
+## La key a quitté sa tile (portée, ou consommée par la door).
+var key_taken: bool = false
+var door_open: bool = false
 
 var _inputs: Dictionary[int, int] = {}
 var _events: Array[SimEvent] = []
@@ -66,7 +71,20 @@ func restart() -> void:
 	_inputs.clear()
 	_events = []
 	halted = false
+	key_carrier = 0
+	key_taken = false
+	door_open = false
 	_sort_players()
+
+
+## Vrai quand tous les players sont entrés dans la door.
+func is_level_clear() -> bool:
+	if players.is_empty():
+		return false
+	for player: PlayerState in players:
+		if not player.entered:
+			return false
+	return true
 
 
 func step() -> void:
@@ -87,6 +105,11 @@ func step() -> void:
 	for player: PlayerState in active:
 		_move_y(player, player.velocity.y * SimConstants.DT)
 	if _apply_deaths(active):
+		halted = true
+		return
+	_apply_key_and_door(active)
+	if is_level_clear():
+		_events.append(SimEvent.make(SimEvent.Kind.LEVEL_CLEAR, 0))
 		halted = true
 		return
 	for player: PlayerState in active:
@@ -208,3 +231,35 @@ func _apply_deaths(active: Array[PlayerState]) -> bool:
 			_events.append(SimEvent.make(SimEvent.Kind.DEATH, player.slot))
 			any_death = true
 	return any_death
+
+
+## Ramassage de la key, ouverture de la door par le porteur, entrée des players.
+func _apply_key_and_door(active: Array[PlayerState]) -> void:
+	if level.has_key() and not key_taken:
+		for player: PlayerState in active:
+			if _overlaps(player.rect(), level.key_rect()):
+				key_carrier = player.slot
+				key_taken = true
+				_events.append(SimEvent.make(SimEvent.Kind.KEY_TAKEN, player.slot))
+				break
+	if not door_open and key_carrier != 0:
+		var carrier: PlayerState = get_player(key_carrier)
+		if carrier != null and carrier.is_active() and _overlaps(carrier.rect(), level.door_rect()):
+			door_open = true
+			key_carrier = 0
+			_events.append(SimEvent.make(SimEvent.Kind.DOOR_OPENED, carrier.slot))
+	if door_open:
+		for player: PlayerState in active:
+			if _overlaps(player.rect(), level.door_rect()):
+				player.entered = true
+
+
+## Recouvrement de deux rects, bords droit et bas exclus, comme pour les tiles.
+static func _overlaps(a: Rect2, b: Rect2) -> bool:
+	var epsilon: float = TileGrid.EDGE_EPSILON
+	return (
+		a.position.x < b.end.x - epsilon
+		and b.position.x < a.end.x - epsilon
+		and a.position.y < b.end.y - epsilon
+		and b.position.y < a.end.y - epsilon
+	)
