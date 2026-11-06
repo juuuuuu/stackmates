@@ -65,10 +65,11 @@ func peer_of(slot: int) -> int:
 	return -1
 
 
+## Le pseudo du slot, ou "Player N" s'il n'est plus dans le roster.
 func name_of(slot: int) -> String:
 	if _names.has(slot):
 		return _names[slot]
-	return ""
+	return "Player %d" % slot
 
 
 func slots() -> Array[int]:

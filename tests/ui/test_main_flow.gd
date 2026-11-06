@@ -92,3 +92,13 @@ func test_victory_then_lobby_resets_screen() -> void:
 	assert_eq(main.state, main.State.LOBBY)
 	assert_null(main.screen_root.get_node_or_null("Victory"))
 	_press(main, "ui_cancel")
+
+
+func test_two_deaths_same_tick_name_both() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	main._on_level_event(SimEvent.Kind.DEATH, 1)
+	main._on_level_event(SimEvent.Kind.DEATH, 7)
+	assert_eq(main.hud.banner_text(), "Ju and Player 7 died")
+	_press(main, "ui_cancel")

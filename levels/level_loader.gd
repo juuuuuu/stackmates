@@ -1,7 +1,8 @@
 class_name LevelLoader
 extends RefCounted
 ## Construit un Level depuis une scène de level : le TileMapLayer "Tiles"
-## (custom data "kind") et les Marker2D sous "Spawns", triés par nom.
+## (custom data "kind"), les Marker2D sous "Spawns" triés par nom, et les
+## Marker2D "Key" et "Door" sous la racine.
 
 const TILES_NODE: String = "Tiles"
 const SPAWNS_NODE: String = "Spawns"

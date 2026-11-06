@@ -1,8 +1,7 @@
 class_name LevelDirector
 extends RefCounted
 ## Transforme les événements du sim en actions datées : redémarrer le niveau
-## une seconde après une mort, passer au suivant 1,5 s après un level clear,
-## redémarrer tout de suite quand un player quitte.
+## une seconde après une mort, passer au suivant 1,5 s après un level clear.
 
 enum Action { NONE, RESTART, NEXT_LEVEL }
 
@@ -20,11 +19,6 @@ func on_event(event: SimEvent, tick: int) -> void:
 				_schedule(Action.RESTART, tick + DEATH_DELAY_TICKS)
 		SimEvent.Kind.LEVEL_CLEAR:
 			_schedule(Action.NEXT_LEVEL, tick + CLEAR_DELAY_TICKS)
-
-
-func on_player_left(tick: int) -> void:
-	if _pending != Action.NEXT_LEVEL:
-		_schedule(Action.RESTART, tick)
 
 
 ## Rend l'action échue une seule fois, sinon NONE.

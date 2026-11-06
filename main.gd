@@ -46,6 +46,7 @@ var _level: Level
 var _smoke: bool = false
 var _smoke_started: bool = false
 var _smoke_snapshots: int = 0
+var _death_names: Array[String] = []
 
 @onready var session: Session = $Session
 @onready var game_sync: GameSync = $GameSync
@@ -306,7 +307,10 @@ func _on_level_event(kind: int, slot: int) -> void:
 		return
 	match kind:
 		SimEvent.Kind.DEATH:
-			hud.show_banner("%s died" % session.roster.name_of(slot), BANNER_DEATH_SEC)
+			if hud.banner_text().is_empty():
+				_death_names.clear()
+			_death_names.append(session.roster.name_of(slot))
+			hud.show_banner("%s died" % " and ".join(_death_names), BANNER_DEATH_SEC)
 		SimEvent.Kind.LEVEL_CLEAR:
 			hud.show_banner(BANNER_LEVEL_CLEAR, BANNER_CLEAR_SEC)
 

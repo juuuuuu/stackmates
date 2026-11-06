@@ -1,6 +1,7 @@
 class_name Level
 extends RefCounted
-## Un level : une grille de tiles et des spawns, dans l'ordre de lecture.
+## Un level : une grille de tiles, des spawns dans l'ordre de lecture, une
+## key et une door (absentes : NO_TILE).
 
 const WIDTH: int = 40
 const HEIGHT: int = 22

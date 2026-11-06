@@ -100,18 +100,21 @@ func _host_tick(bits: int) -> void:
 		snapshots_sent += 1
 
 
-## Retire de la simulation les players qui ont quitté la session, et fait
-## recommencer le niveau aux autres.
+## Retire de la simulation les players qui ont quitté la session et fait
+## recommencer le niveau tout de suite aux autres. Si le niveau était déjà
+## fini, le passage au suivant reste planifié et rien ne redémarre.
 func _on_roster_changed(roster: Dictionary) -> void:
 	if simulation == null:
 		return
+	var already_clear: bool = simulation.is_level_clear()
 	var removed: bool = false
 	for player: PlayerState in simulation.players.duplicate():
 		if not roster.has(player.slot):
 			simulation.remove_player(player.slot)
 			removed = true
-	if removed:
-		director.on_player_left(simulation.tick)
+	if removed and not already_clear:
+		simulation.restart()
+		_level_restarted.rpc()
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")

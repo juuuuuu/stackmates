@@ -15,3 +15,37 @@ func test_tick_stays_monotonic_across_levels() -> void:
 	assert_eq(sync.simulation.tick, tick_before)
 	assert_eq(sync.simulation.players.size(), 1)
 	sync.stop()
+
+
+func test_player_left_restarts_even_if_others_entered() -> void:
+	var session: Session = add_child_autofree(Session.new())
+	var sync: GameSync = add_child_autofree(GameSync.new())
+	sync.session = session
+	sync.start_as_host(Level.from_rows(["S.K.D.S", "#######"]), [1, 2])
+	sync.simulation.set_input(1, InputBits.RIGHT)
+	for i: int in 40:
+		sync.simulation.step()
+	assert_true(sync.simulation.get_player(1).entered)
+	sync._on_roster_changed({1: "Host"})
+	assert_eq(sync.simulation.players.size(), 1)
+	assert_false(sync.simulation.get_player(1).entered)
+	assert_false(sync.simulation.halted)
+	sync.simulation.step()
+	assert_false(sync.simulation.is_level_clear())
+	sync.stop()
+
+
+func test_player_left_during_clear_keeps_next_level() -> void:
+	var session: Session = add_child_autofree(Session.new())
+	var sync: GameSync = add_child_autofree(GameSync.new())
+	sync.session = session
+	sync.start_as_host(Level.from_rows(["SKD", "###"]), [1, 2])
+	sync.simulation.set_input(1, InputBits.RIGHT)
+	sync.simulation.set_input(2, InputBits.RIGHT)
+	for i: int in 40:
+		sync.simulation.step()
+	assert_true(sync.simulation.is_level_clear())
+	sync._on_roster_changed({1: "Host"})
+	assert_true(sync.simulation.halted)
+	assert_true(sync.simulation.get_player(1).entered)
+	sync.stop()
