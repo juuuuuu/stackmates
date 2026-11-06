@@ -23,9 +23,25 @@ static func is_private_ipv4(address: String) -> bool:
 	return octets[0] == 192 and octets[1] == 168
 
 
-## La première IPv4 privée des interfaces, ou vide.
+## L'IPv4 privée la plus probable du réseau domestique, ou vide.
 static func local_ipv4() -> String:
-	for address: String in IP.get_local_addresses():
-		if is_private_ipv4(address):
-			return address
-	return ""
+	return pick_local(IP.get_local_addresses())
+
+
+## Préfère 192.168/16, puis 10/8, puis 172.16/12 (les ponts Docker et les
+## VPN y vivent souvent). Vide sans IPv4 privée.
+static func pick_local(addresses: PackedStringArray) -> String:
+	var best: String = ""
+	var best_rank: int = 99
+	for address: String in addresses:
+		if not is_private_ipv4(address):
+			continue
+		var rank: int = 2
+		if address.begins_with("192.168."):
+			rank = 0
+		elif address.begins_with("10."):
+			rank = 1
+		if rank < best_rank:
+			best = address
+			best_rank = rank
+	return best
