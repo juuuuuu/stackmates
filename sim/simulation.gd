@@ -101,7 +101,11 @@ func step() -> void:
 		_apply_vertical_intent(player, _input_of(player.slot))
 	for player: PlayerState in active:
 		_apply_horizontal_intent(player, _input_of(player.slot))
-		_move_x(player, player.velocity.x * SimConstants.DT, [])
+		var dx: float = player.velocity.x * SimConstants.DT
+		var carrier: PlayerState = _carrier_of(player)
+		if carrier != null:
+			dx += carrier.last_dx
+		_move_x(player, dx, [])
 	for player: PlayerState in active:
 		_move_y(player, player.velocity.y * SimConstants.DT)
 	if _apply_deaths(active):
@@ -223,24 +227,53 @@ func _resolve_tiles_x(player: PlayerState, dx: float) -> void:
 	player.velocity.x = 0.0
 
 
-## Déplace le player en y. Vers le bas, une collision pose le player sur la
-## tile (on_ground). Vers le haut, elle le ramène sous la tile.
+## Déplace le player en y. Vers le bas, une collision avec une tile ou avec
+## un player pose le player dessus (on_ground). Vers le haut, une tile le
+## ramène dessous ; les players sont traversés.
 func _move_y(player: PlayerState, dy: float) -> void:
+	var old_bottom: float = player.position.y + SimConstants.PLAYER_SIZE
 	player.position.y += dy
-	if not level.grid.overlaps_solid(player.rect()):
-		player.on_ground = false
-		return
+	player.on_ground = false
+	if level.grid.overlaps_solid(player.rect()):
+		if dy > 0.0:
+			var bottom_edge: float = (
+				player.position.y + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
+			)
+			var tile_y: int = floori(bottom_edge / SimConstants.TILE_SIZE)
+			player.position.y = tile_y * SimConstants.TILE_SIZE - SimConstants.PLAYER_SIZE
+			player.on_ground = true
+		else:
+			var tile_y: int = floori(player.position.y / SimConstants.TILE_SIZE)
+			player.position.y = (tile_y + 1) * SimConstants.TILE_SIZE
+		player.velocity.y = 0.0
 	if dy > 0.0:
-		var bottom_edge: float = (
-			player.position.y + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
-		)
-		var tile_y: int = floori(bottom_edge / SimConstants.TILE_SIZE)
-		player.position.y = tile_y * SimConstants.TILE_SIZE - SimConstants.PLAYER_SIZE
-		player.on_ground = true
-	else:
-		var tile_y: int = floori(player.position.y / SimConstants.TILE_SIZE)
-		player.position.y = (tile_y + 1) * SimConstants.TILE_SIZE
-	player.velocity.y = 0.0
+		_land_on_players(player, old_bottom)
+
+
+## Pose le player sur un autre player qu'il recouvre en venant d'au-dessus.
+func _land_on_players(player: PlayerState, old_bottom: float) -> void:
+	for other: PlayerState in players:
+		if other == player or not other.is_active():
+			continue
+		if not _overlaps(player.rect(), other.rect()):
+			continue
+		if other.position.y >= old_bottom - TileGrid.EDGE_EPSILON:
+			player.position.y = other.position.y - SimConstants.PLAYER_SIZE
+			player.velocity.y = 0.0
+			player.on_ground = true
+
+
+## Le player actif juste sous celui-ci, qui le porte. Null s'il n'y en a pas.
+func _carrier_of(player: PlayerState) -> PlayerState:
+	var size: Vector2 = Vector2(SimConstants.PLAYER_SIZE, SimConstants.PLAYER_SIZE)
+	var probe: Rect2 = Rect2(player.position + Vector2(0, 1), size)
+	var min_top: float = player.position.y + SimConstants.PLAYER_SIZE - 0.5
+	for other: PlayerState in players:
+		if other == player or not other.is_active():
+			continue
+		if other.position.y >= min_top and _overlaps(probe, other.rect()):
+			return other
+	return null
 
 
 ## Tue les players sur un spike ou sortis par le bas. Vrai si au moins un mort.

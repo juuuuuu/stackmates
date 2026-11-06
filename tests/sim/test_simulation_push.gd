@@ -67,14 +67,18 @@ func test_airborne_player_cannot_push_grounded_player() -> void:
 
 
 func test_grounded_player_walks_through_airborne_player() -> void:
-	# Le player 1 (16, 16) tombe ; le player 2 (0, 32) marche sous lui.
-	var sim: Simulation = _sim(["......", ".S....", "S.....", "######"])
+	# Le player 2 saute sur place ; le player 1 marche vers lui pendant qu'il est en l'air.
+	var sim: Simulation = _sim(["....", "SS..", "####"])
 	sim.add_player(1)
 	sim.add_player(2)
-	_run(sim, 2, InputBits.RIGHT, 2)
-	assert_false(sim.get_player(1).on_ground)
-	assert_eq(sim.get_player(1).position.x, 16.0)
-	assert_almost_eq(sim.get_player(2).position.x, 3.2, 0.01)
+	_run(sim, 1, 0, 1)
+	sim.set_input(2, InputBits.JUMP)
+	sim.set_input(1, InputBits.RIGHT)
+	for i: int in 3:
+		sim.step()
+	assert_false(sim.get_player(2).on_ground)
+	assert_eq(sim.get_player(2).position.x, 16.0)
+	assert_almost_eq(sim.get_player(1).position.x, 4.8, 0.01)
 
 
 func test_overlapping_players_separate_without_error() -> void:
