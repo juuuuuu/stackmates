@@ -159,6 +159,7 @@ func _show_lobby(status: String) -> void:
 	_world_view = null
 	_lobby = _replace_screen(LOBBY_SCENE)
 	_lobby.set_status(status)
+	_lobby.set_level_count(LevelList.count())
 	_lobby.set_roster(session.roster.to_dict(), session.is_host)
 	_lobby.start_requested.connect(_on_start_requested)
 	_lobby.leave_requested.connect(_leave_to_menu.bind(""))
@@ -270,8 +271,8 @@ func _on_roster_changed(roster: Dictionary) -> void:
 		session.start_game(0)
 
 
-func _on_start_requested() -> void:
-	session.start_game(0)
+func _on_start_requested(level_index: int) -> void:
+	session.start_game(level_index)
 
 
 func _on_game_started(level_index: int) -> void:

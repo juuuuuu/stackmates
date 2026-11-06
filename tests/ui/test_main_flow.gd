@@ -38,7 +38,7 @@ func test_host_then_cancel_returns_to_menu() -> void:
 func test_host_start_shows_world_with_one_player() -> void:
 	var main: Main = _main()
 	main._on_host_requested(TEST_PORT, "Ju")
-	main._on_start_requested()
+	main._on_start_requested(0)
 	assert_eq(main.state, main.State.PLAYING)
 	# En headless, _process ne tourne qu'après deux signaux process_frame.
 	await get_tree().process_frame
@@ -64,7 +64,16 @@ func test_last_level_finished_returns_to_lobby() -> void:
 func test_death_event_shows_name_in_banner() -> void:
 	var main: Main = _main()
 	main._on_host_requested(TEST_PORT, "Ju")
-	main._on_start_requested()
+	main._on_start_requested(0)
 	main._on_level_event(SimEvent.Kind.DEATH, 1)
 	assert_eq(main.hud.banner_text(), "Ju died")
+	_press(main, "ui_cancel")
+
+
+func test_level_select_starts_at_chosen_index() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(3)
+	assert_eq(main.state, main.State.PLAYING)
+	assert_eq(main._level_index, 3)
 	_press(main, "ui_cancel")

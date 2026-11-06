@@ -124,3 +124,35 @@ func test_level_04_no_jumping_in_the_corridor() -> void:
 	assert_true(Walkthrough.walk_to(sim, 1, 400.0))
 	Walkthrough.jump_toward(sim, 1, 0, 10)
 	assert_eq(sim.get_player(1).position.y, 320.0)
+
+
+func test_level_05_combination() -> void:
+	# Le player 2 spawne devant : il franchit les spikes en premier, puis sert
+	# de marche contre le bloc ; le 1 prend la key et tout le monde revient.
+	var sim: Simulation = Simulation.new(Walkthrough.load_level("res://levels/level_05.tscn"))
+	sim.add_player(1)
+	sim.add_player(2)
+	Walkthrough.idle_all(sim)
+	for slot: int in [2, 1]:
+		for spike_x: float in [288.0, 368.0]:
+			assert_true(Walkthrough.walk_to(sim, slot, spike_x - JUMP_LEAD_PX))
+			Walkthrough.jump_toward(sim, slot, 1)
+		Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 2, 432.0))
+	Walkthrough.idle_all(sim)
+	assert_true(Walkthrough.walk_to(sim, 1, 400.0))
+	Walkthrough.jump_toward(sim, 1, 1)
+	assert_eq(sim.get_player(1).position, Vector2(432, 304))
+	Walkthrough.jump_toward(sim, 1, 1)
+	assert_true(Walkthrough.walk_to(sim, 1, 480.0))
+	assert_eq(sim.key_carrier, 1)
+	for slot: int in [1, 2]:
+		assert_true(Walkthrough.walk_to(sim, slot, 420.0))
+		for spike_x: float in [368.0, 288.0]:
+			assert_true(Walkthrough.walk_to(sim, slot, spike_x + JUMP_LEAD_PX))
+			Walkthrough.jump_toward(sim, slot, -1)
+		assert_true(Walkthrough.walk_to(sim, slot, 130.0))
+		Walkthrough.jump_toward(sim, slot, -1)
+		assert_true(Walkthrough.walk_to(sim, slot, 64.0))
+		Walkthrough.idle_all(sim)
+	assert_true(sim.is_level_clear())
