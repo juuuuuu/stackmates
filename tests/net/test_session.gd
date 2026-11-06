@@ -24,3 +24,8 @@ func test_stale_join_timeout_is_ignored_after_a_new_join() -> void:
 	session._on_join_timeout(2)
 	assert_signal_emitted_with_parameters(session, "join_failed", [Session.REASON_TIMEOUT])
 	session.leave()
+
+
+func test_protocol_version_bumped_for_milestone_1() -> void:
+	# Nouveaux RPC et nouveaux flags de snapshot : un client v0.0.1 doit être refusé.
+	assert_eq(Session.PROTOCOL_VERSION, 2)

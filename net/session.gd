@@ -11,7 +11,7 @@ signal host_left
 signal game_started(level_index: int)
 signal game_finished
 
-const PROTOCOL_VERSION: int = 1
+const PROTOCOL_VERSION: int = 2
 const DEFAULT_PORT: int = 28015
 const CONNECT_TIMEOUT_SEC: float = 10.0
 ## Plus que MAX_PLAYERS : le refus "partie pleine" vient du handshake, avec sa

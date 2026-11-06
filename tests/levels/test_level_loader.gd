@@ -21,5 +21,7 @@ func test_level_01_has_key_door_and_spike() -> void:
 	var level: Level = LevelLoader.from_scene_root(root)
 	assert_eq(level.key_tile, Vector2i(10, 20))
 	assert_eq(level.door_tile, Vector2i(36, 16))
-	assert_eq(level.grid.get_tile(28, 20), TileGrid.Tile.SPIKE)
+	# Le spike est dans la poche sous la plateforme, hors du chemin obligatoire.
+	assert_eq(level.grid.get_tile(36, 20), TileGrid.Tile.SPIKE)
+	assert_eq(level.grid.get_tile(28, 20), TileGrid.Tile.EMPTY)
 	assert_eq(level.spawns.size(), 8)

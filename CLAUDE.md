@@ -28,3 +28,6 @@ joueurs, `host-authoritative`.
 - Commits directs sur `main`. Jamais de branche, jamais de PR.
 - Message de commit : préfixe Conventional Commits en anglais (`feat:`, `fix:`,
   `test:`, `docs:`, `ci:`, `chore:`), sujet en français.
+- Avant un tag : `config/version` dans `project.godot`, `application/version`
+  et `short_version` dans `export_presets.cfg`, et `PROTOCOL_VERSION` dans
+  `net/session.gd` si un RPC ou le format du `snapshot` a changé.

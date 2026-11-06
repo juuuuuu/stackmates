@@ -27,7 +27,11 @@ var _local_tick: int = 0
 
 
 func start_as_host(level: Level, slots: Array[int]) -> void:
+	# Le tick reste monotone d'un niveau à l'autre : un snapshot de l'ancien
+	# niveau arrivé en retard ne peut pas bloquer le buffer des clients.
+	var previous_tick: int = simulation.tick if simulation != null else 0
 	simulation = Simulation.new(level)
+	simulation.tick = previous_tick
 	for slot: int in slots:
 		simulation.add_player(slot)
 	director = LevelDirector.new()
