@@ -59,3 +59,12 @@ func test_last_level_finished_returns_to_lobby() -> void:
 	assert_eq(lobby.status_label.text, "Level clear!")
 	assert_false(main.session.in_progress)
 	_press(main, "ui_cancel")
+
+
+func test_death_event_shows_name_in_banner() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested()
+	main._on_level_event(SimEvent.Kind.DEATH, 1)
+	assert_eq(main.hud.banner_text(), "Ju died")
+	_press(main, "ui_cancel")

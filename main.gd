@@ -9,6 +9,10 @@ enum State { MENU, CONNECTING, LOBBY, PLAYING }
 const MAIN_MENU_SCENE: PackedScene = preload("res://ui/main_menu.tscn")
 const LOBBY_SCENE: PackedScene = preload("res://ui/lobby.tscn")
 const WORLD_VIEW_SCENE: PackedScene = preload("res://ui/world_view.tscn")
+const HUD_SCENE: PackedScene = preload("res://ui/hud.tscn")
+const BANNER_DEATH_SEC: float = 1.0
+const BANNER_CLEAR_SEC: float = 1.5
+const BANNER_LEVEL_CLEAR: String = "Level clear"
 const STATUS_WAITING_PLAYERS: String = "Waiting for players..."
 const STATUS_CONNECTING: String = "Connecting..."
 const STATUS_WAITING_HOST: String = "Waiting for the host to start"
@@ -26,6 +30,8 @@ const EXIT_TIMEOUT: int = 2
 const DEFAULT_PLAYER_NAME: String = "Player"
 
 var state: State = State.MENU
+## Les bandeaux de la partie ; null hors partie.
+var hud: Hud
 ## Le fichier de réglages ; les tests le redirigent avant d'ajouter la scène.
 var settings_path: String = SettingsStore.DEFAULT_PATH
 
@@ -35,6 +41,7 @@ var _lobby: Lobby
 var _world_view: WorldView
 var _level_scene: PackedScene
 var _level_index: int = 0
+var _level: Level
 var _smoke: bool = false
 var _smoke_started: bool = false
 var _smoke_snapshots: int = 0
@@ -57,6 +64,7 @@ func _ready() -> void:
 	session.game_finished.connect(_on_game_finished)
 	game_sync.snapshot_received.connect(_on_snapshot_received)
 	game_sync.level_finished.connect(_on_level_finished)
+	game_sync.level_event.connect(_on_level_event)
 	if _smoke:
 		game_sync.local_input_source = func() -> int: return InputBits.RIGHT
 		var timer: SceneTreeTimer = get_tree().create_timer(SMOKE_TIMEOUT_SEC)
@@ -136,6 +144,7 @@ static func _reason_text(reason: String) -> String:
 
 func _show_menu(error_text: String) -> void:
 	state = State.MENU
+	_clear_hud()
 	_lobby = null
 	_world_view = null
 	var menu: MainMenu = _replace_screen(MAIN_MENU_SCENE)
@@ -146,6 +155,7 @@ func _show_menu(error_text: String) -> void:
 
 
 func _show_lobby(status: String) -> void:
+	_clear_hud()
 	_world_view = null
 	_lobby = _replace_screen(LOBBY_SCENE)
 	_lobby.set_status(status)
@@ -157,7 +167,17 @@ func _show_lobby(status: String) -> void:
 func _show_world() -> void:
 	_lobby = null
 	_world_view = _replace_screen(WORLD_VIEW_SCENE)
-	_world_view.show_level(_level_scene)
+	_world_view.show_level(_level_scene, _level)
+	if hud == null:
+		hud = HUD_SCENE.instantiate()
+		add_child(hud)
+
+
+func _clear_hud() -> void:
+	if hud != null:
+		remove_child(hud)
+		hud.queue_free()
+		hud = null
 
 
 func _replace_screen(scene: PackedScene) -> Node:
@@ -258,10 +278,10 @@ func _on_game_started(level_index: int) -> void:
 	_level_index = level_index
 	_level_scene = load(LevelList.PATHS[level_index])
 	var level_root: Node = _level_scene.instantiate()
-	var level: Level = LevelLoader.from_scene_root(level_root)
+	_level = LevelLoader.from_scene_root(level_root)
 	level_root.free()
 	if session.is_host:
-		game_sync.start_as_host(level, session.roster.slots())
+		game_sync.start_as_host(_level, session.roster.slots())
 	else:
 		game_sync.start_as_client()
 	state = State.PLAYING
@@ -275,6 +295,17 @@ func _on_level_finished() -> void:
 		session.start_game(next_index)
 	else:
 		session.finish_game()
+
+
+## Bandeau d'une mort ou d'un level clear ; les autres événements sont muets.
+func _on_level_event(kind: int, slot: int) -> void:
+	if hud == null:
+		return
+	match kind:
+		SimEvent.Kind.DEATH:
+			hud.show_banner("%s died" % session.roster.name_of(slot), BANNER_DEATH_SEC)
+		SimEvent.Kind.LEVEL_CLEAR:
+			hud.show_banner(BANNER_LEVEL_CLEAR, BANNER_CLEAR_SEC)
 
 
 func _on_game_finished() -> void:
