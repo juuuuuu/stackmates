@@ -15,9 +15,11 @@ CI, logs horodatés, documentation d'installation). Voir `docs/design.md`.
 2. Les builds ne sont pas signés (aucun compte développeur payant) :
    - Windows : SmartScreen affiche un avertissement, cliquer sur
      « Informations complémentaires » puis « Exécuter quand même ».
-   - macOS : Gatekeeper bloque l'application au premier lancement. Faire un
-     clic droit sur l'application puis « Ouvrir », ou dans un terminal :
-     `xattr -dr com.apple.quarantine Stackmates.app`.
+   - macOS : Gatekeeper bloque l'application au premier lancement. Depuis
+     macOS 15 : lancer une fois, fermer l'alerte, puis Réglages Système,
+     Confidentialité et sécurité, « Ouvrir quand même ». Avant macOS 15, un
+     clic droit sur l'application puis « Ouvrir » suffit. Dans tous les cas,
+     un terminal marche aussi : `xattr -dr com.apple.quarantine Stackmates.app`.
 3. Héberger : entrer un pseudo, un port (28015 par défaut), cliquer sur Host.
    Le lobby affiche l'IP locale, l'IP publique et l'état de l'ouverture du
    port par `UPnP` (bouton Copier à côté de chaque IP). Si l'`UPnP` échoue,
@@ -46,10 +48,13 @@ CI, logs horodatés, documentation d'installation). Voir `docs/design.md`.
    ou tomber hors du niveau fait recommencer le niveau pour tout le monde.
 7. Signaler un problème : ouvrir une
    [issue GitHub](https://github.com/juuuuuu/stackmates/issues) en joignant
-   le fichier `godot.log` du dossier des logs : `%APPDATA%\Stackmates\logs\`
-   (Windows), `~/.local/share/Stackmates/logs/` (Linux),
-   `~/Library/Application Support/Stackmates/logs/` (macOS). Le jeu y note
-   l'heure de chaque connexion, départ et erreur réseau.
+   le fichier `godot.log` du dossier des logs :
+   `%APPDATA%\Godot\app_userdata\Stackmates\logs\` (Windows),
+   `~/.local/share/godot/app_userdata/Stackmates/logs/` (Linux),
+   `~/Library/Application Support/Godot/app_userdata/Stackmates/logs/`
+   (macOS). Le jeu y note l'heure de chaque connexion, départ et erreur
+   réseau. Ce fichier contient les adresses IP et les pseudos de la session :
+   les masquer avant de le publier si on préfère.
 
 ## Développer
 

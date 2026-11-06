@@ -215,9 +215,10 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
 - Le workflow télécharge le binaire Godot 4.7.2 et les `export templates` depuis
   les releases officielles (`godot-builds`), avec `actions/cache`. Pas d'image
   Docker tierce.
-- Builds non signés : avertissement SmartScreen (Windows) et Gatekeeper (macOS,
-  « clic droit, Ouvrir » ou `xattr`) documentés. Un compte Apple Developer
-  coûte 99 USD par an, hors budget.
+- Builds non signés : avertissement SmartScreen (Windows) et Gatekeeper (macOS :
+  depuis macOS 15, Réglages Système, Confidentialité et sécurité, « Ouvrir
+  quand même » ; avant, « clic droit, Ouvrir » ; ou `xattr`) documentés. Un
+  compte Apple Developer coûte 99 USD par an, hors budget.
 - Publication sur itch.io (slug `stackmates`) via `butler` sur chaque tag, et sur
   GitHub Releases. Le développeur crée le compte itch.io et la clé `butler` en
   secret GitHub au jalon 3.

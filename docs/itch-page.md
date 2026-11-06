@@ -23,7 +23,7 @@ Free and open source (MIT): https://github.com/juuuuuu/stackmates
 Download the zip for your system, unzip it, and run the game. The builds are not signed (no paid developer account), so your system warns you once:
 
 - Windows: SmartScreen shows "Windows protected your PC". Click "More info", then "Run anyway".
-- macOS: Gatekeeper blocks the app on first launch. Right-click `Stackmates.app`, choose "Open", then confirm. Or, in Terminal: `xattr -dr com.apple.quarantine Stackmates.app`
+- macOS: Gatekeeper blocks the app on first launch. On macOS 15 and later: open it once, dismiss the alert, then go to System Settings, Privacy & Security, and click "Open Anyway". Before macOS 15, right-click `Stackmates.app`, choose "Open", then confirm. In every case, Terminal works too: `xattr -dr com.apple.quarantine Stackmates.app`
 - Linux: run `stackmates.x86_64`. If it does not start, make it executable first: `chmod +x stackmates.x86_64`
 
 All players need the same game version.
@@ -48,11 +48,11 @@ Arrow keys or WASD (ZQSD on AZERTY) to move, Space or Up to jump, F11 for fullsc
 
 Open an issue at https://github.com/juuuuuu/stackmates/issues and attach `godot.log` from the logs folder:
 
-- Windows: `%APPDATA%\Stackmates\logs\`
-- Linux: `~/.local/share/Stackmates/logs/`
-- macOS: `~/Library/Application Support/Stackmates/logs/`
+- Windows: `%APPDATA%\Godot\app_userdata\Stackmates\logs\`
+- Linux: `~/.local/share/godot/app_userdata/Stackmates/logs/`
+- macOS: `~/Library/Application Support/Godot/app_userdata/Stackmates/logs/`
 
-Every connection, departure, and network error is logged with its time.
+Every connection, departure, and network error is logged with its time. The file holds the IP addresses and player names of the session: blank them out before posting if you prefer.
 
 ### Requirements
 
