@@ -13,7 +13,7 @@ func test_french_locale_translates_scene_and_code_texts() -> void:
 	# Les scènes sont traduites à l'affichage : text garde la clé, atr() la traduit.
 	assert_eq(menu.host_button.atr(menu.host_button.text), "Héberger")
 	assert_eq(tr("Level clear!"), "Niveau terminé !")
-	assert_eq(tr("%s died") % "Ju", "Ju est mort")
+	assert_eq(tr("%s died") % "Ju et Lo", "Mort de Ju et Lo")
 
 
 func test_unknown_locale_falls_back_to_english() -> void:
