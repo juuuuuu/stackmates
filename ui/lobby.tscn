@@ -38,6 +38,45 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 
+[node name="NetworkInfo" type="VBoxContainer" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="LocalRow" type="HBoxContainer" parent="Center/Column/NetworkInfo"]
+layout_mode = 2
+
+[node name="LocalIpLabel" type="Label" parent="Center/Column/NetworkInfo/LocalRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CopyLocalButton" type="Button" parent="Center/Column/NetworkInfo/LocalRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Copy"
+
+[node name="PublicRow" type="HBoxContainer" parent="Center/Column/NetworkInfo"]
+layout_mode = 2
+
+[node name="PublicIpLabel" type="Label" parent="Center/Column/NetworkInfo/PublicRow"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CopyPublicButton" type="Button" parent="Center/Column/NetworkInfo/PublicRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Copy"
+
+[node name="PortLabel" type="Label" parent="Center/Column/NetworkInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="UpnpLabel" type="Label" parent="Center/Column/NetworkInfo"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 3
+
 [node name="LevelSelect" type="OptionButton" parent="Center/Column"]
 unique_name_in_owner = true
 layout_mode = 2

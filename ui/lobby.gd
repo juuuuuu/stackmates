@@ -7,17 +7,29 @@ signal start_requested(level_index: int)
 signal leave_requested
 
 var _focus_placed: bool = false
+var _local_ip: String = ""
+var _public_ip: String = ""
 
 @onready var status_label: Label = %StatusLabel
 @onready var player_list: VBoxContainer = %PlayerList
 @onready var level_select: OptionButton = %LevelSelect
 @onready var start_button: Button = %StartButton
 @onready var leave_button: Button = %LeaveButton
+@onready var network_info: VBoxContainer = %NetworkInfo
+@onready var local_ip_label: Label = %LocalIpLabel
+@onready var public_ip_label: Label = %PublicIpLabel
+@onready var port_label: Label = %PortLabel
+@onready var upnp_label: Label = %UpnpLabel
+@onready var copy_local_button: Button = %CopyLocalButton
+@onready var copy_public_button: Button = %CopyPublicButton
 
 
 func _ready() -> void:
 	start_button.pressed.connect(_on_start_pressed)
 	leave_button.pressed.connect(leave_requested.emit)
+	copy_local_button.pressed.connect(func() -> void: DisplayServer.clipboard_set(_local_ip))
+	copy_public_button.pressed.connect(func() -> void: DisplayServer.clipboard_set(_public_ip))
+	network_info.visible = false
 	leave_button.grab_focus()
 
 
@@ -53,6 +65,7 @@ func set_roster(roster: Dictionary, is_host: bool) -> void:
 		player_list.add_child(label)
 	start_button.visible = is_host
 	level_select.visible = is_host
+	network_info.visible = is_host
 	if is_host and not _focus_placed:
 		start_button.grab_focus()
 		_focus_placed = true
@@ -64,3 +77,24 @@ func row_count() -> int:
 
 func _on_start_pressed() -> void:
 	start_requested.emit(selected_level())
+
+
+## Les infos à partager par le host : IP locale, IP publique, port, état UPnP.
+## Une IP vide s'affiche "unknown".
+func set_network_info(local_ip: String, public_ip: String, port: int, upnp_status: String) -> void:
+	_local_ip = local_ip
+	_public_ip = public_ip
+	local_ip_label.text = (
+		tr("Local IP") + ": " + (local_ip if not local_ip.is_empty() else tr("unknown"))
+	)
+	public_ip_label.text = (
+		tr("Public IP") + ": " + (public_ip if not public_ip.is_empty() else tr("unknown"))
+	)
+	port_label.text = tr("Port") + ": " + str(port)
+	upnp_label.text = upnp_status
+	copy_local_button.disabled = local_ip.is_empty()
+	copy_public_button.disabled = public_ip.is_empty()
+
+
+func network_info_visible() -> bool:
+	return network_info.visible

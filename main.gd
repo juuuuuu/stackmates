@@ -46,6 +46,8 @@ var hud: Hud
 var pause_menu: PauseMenu
 ## Le fichier de réglages ; les tests le redirigent avant d'ajouter la scène.
 var settings_path: String = SettingsStore.DEFAULT_PATH
+## Les sondes réseau du host (IP publique, UPnP) ; coupées par les tests et le smoke.
+var network_probes_enabled: bool = true
 
 var _settings: SettingsStore
 var _screen: Node
@@ -58,6 +60,12 @@ var _smoke: bool = false
 var _smoke_started: bool = false
 var _smoke_snapshots: int = 0
 var _death_names: Array[String] = []
+var _host_port: int = 0
+var _local_ip: String = ""
+var _public_ip: String = ""
+var _upnp_status: String = ""
+var _public_ip_probe: PublicIpProbe
+var _upnp_opener: UpnpOpener
 
 @onready var session: Session = $Session
 @onready var game_sync: GameSync = $GameSync
@@ -176,6 +184,7 @@ func _show_lobby(status: String) -> void:
 	_lobby.set_roster(session.roster.to_dict(), session.is_host)
 	_lobby.start_requested.connect(_on_start_requested)
 	_lobby.leave_requested.connect(_leave_to_menu.bind(""))
+	_refresh_network_info()
 
 
 func _show_world() -> void:
@@ -206,6 +215,7 @@ func _replace_screen(scene: PackedScene) -> Node:
 
 func _leave_to_menu(error_text: String) -> void:
 	_close_pause_menu()
+	_stop_network_probes()
 	game_sync.stop()
 	session.leave()
 	_show_menu(error_text)
@@ -344,6 +354,7 @@ func _start_host(port: int, player_name: String) -> void:
 		return
 	state = State.LOBBY
 	_show_lobby(tr(STATUS_WAITING_PLAYERS))
+	_start_network_probes(port)
 
 
 func _start_join(address: String, port: int, player_name: String) -> void:
@@ -490,3 +501,49 @@ func _quit_with(code: int, message: String) -> void:
 	game_sync.stop()
 	session.leave()
 	get_tree().quit(code)
+
+
+# Infos réseau du host
+
+
+func _start_network_probes(port: int) -> void:
+	_host_port = port
+	_local_ip = NetInfo.local_ipv4()
+	_public_ip = ""
+	_upnp_status = tr("UPnP: opening the port...")
+	_refresh_network_info()
+	if not network_probes_enabled or _smoke:
+		return
+	_public_ip_probe = PublicIpProbe.new()
+	_public_ip_probe.resolved.connect(_on_public_ip_resolved)
+	_public_ip_probe.failed.connect(_refresh_network_info)
+	add_child(_public_ip_probe)
+	_public_ip_probe.start()
+	_upnp_opener = UpnpOpener.new()
+	_upnp_opener.finished.connect(_on_upnp_finished)
+	add_child(_upnp_opener)
+	_upnp_opener.open(port)
+
+
+func _stop_network_probes() -> void:
+	for probe: Node in [_public_ip_probe, _upnp_opener]:
+		if probe != null:
+			remove_child(probe)
+			probe.queue_free()
+	_public_ip_probe = null
+	_upnp_opener = null
+
+
+func _on_public_ip_resolved(address: String) -> void:
+	_public_ip = address
+	_refresh_network_info()
+
+
+func _on_upnp_finished(_ok: bool, message: String) -> void:
+	_upnp_status = message
+	_refresh_network_info()
+
+
+func _refresh_network_info() -> void:
+	if _lobby != null and session.is_host:
+		_lobby.set_network_info(_local_ip, _public_ip, _host_port, _upnp_status)
