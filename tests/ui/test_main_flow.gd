@@ -47,3 +47,15 @@ func test_host_start_shows_world_with_one_player() -> void:
 	assert_eq(view.sprite_count(), 1)
 	_press(main, "ui_cancel")
 	assert_eq(main.state, main.State.MENU)
+
+
+func test_last_level_finished_returns_to_lobby() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested()
+	main.game_sync.level_finished.emit()
+	assert_eq(main.state, main.State.LOBBY)
+	var lobby: Lobby = main.screen_root.get_node("Lobby")
+	assert_eq(lobby.status_label.text, "Level clear!")
+	assert_false(main.session.in_progress)
+	_press(main, "ui_cancel")

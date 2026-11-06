@@ -9,6 +9,7 @@ signal joined(local_slot: int)
 signal join_failed(reason: String)
 signal host_left
 signal game_started(level_index: int)
+signal game_finished
 
 const PROTOCOL_VERSION: int = 1
 const DEFAULT_PORT: int = 28015
@@ -45,6 +46,7 @@ func host(port: int, player_name: String) -> Error:
 	if error != OK:
 		return error
 	_peer = peer
+	_disable_relay()
 	multiplayer.multiplayer_peer = peer
 	is_host = true
 	in_progress = false
@@ -61,6 +63,7 @@ func join(address: String, port: int, player_name: String) -> Error:
 	if error != OK:
 		return error
 	_peer = peer
+	_disable_relay()
 	multiplayer.multiplayer_peer = peer
 	is_host = false
 	local_slot = 0
@@ -89,6 +92,20 @@ func start_game(level_index: int) -> void:
 	if not is_host:
 		return
 	_game_started.rpc(level_index)
+
+
+## Host seulement : termine la partie, tout le monde revient au lobby.
+func finish_game() -> void:
+	if not is_host:
+		return
+	_game_finished.rpc()
+
+
+## Les RPC d'un client ne transitent jamais vers un autre client.
+func _disable_relay() -> void:
+	var scene_multiplayer: SceneMultiplayer = multiplayer as SceneMultiplayer
+	if scene_multiplayer != null:
+		scene_multiplayer.server_relay = false
 
 
 func slot_of_peer(peer_id: int) -> int:
@@ -185,3 +202,9 @@ func _roster_changed(roster_dict: Dictionary) -> void:
 func _game_started(level_index: int) -> void:
 	in_progress = true
 	game_started.emit(level_index)
+
+
+@rpc("authority", "call_local", "reliable")
+func _game_finished() -> void:
+	in_progress = false
+	game_finished.emit()

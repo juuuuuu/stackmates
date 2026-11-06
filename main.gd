@@ -12,6 +12,7 @@ const WORLD_VIEW_SCENE: PackedScene = preload("res://ui/world_view.tscn")
 const STATUS_WAITING_PLAYERS: String = "Waiting for players..."
 const STATUS_CONNECTING: String = "Connecting..."
 const STATUS_WAITING_HOST: String = "Waiting for the host to start"
+const STATUS_LEVEL_CLEAR: String = "Level clear!"
 const ERROR_HOST_LEFT: String = "Host left"
 const SMOKE_TIMEOUT_SEC: float = 20.0
 const SMOKE_HOST_MIN_SNAPSHOTS: int = 30
@@ -33,6 +34,7 @@ var _screen: Node
 var _lobby: Lobby
 var _world_view: WorldView
 var _level_scene: PackedScene
+var _level_index: int = 0
 var _smoke: bool = false
 var _smoke_started: bool = false
 var _smoke_snapshots: int = 0
@@ -52,7 +54,9 @@ func _ready() -> void:
 	session.roster_changed.connect(_on_roster_changed)
 	session.host_left.connect(_on_host_left)
 	session.game_started.connect(_on_game_started)
+	session.game_finished.connect(_on_game_finished)
 	game_sync.snapshot_received.connect(_on_snapshot_received)
+	game_sync.level_finished.connect(_on_level_finished)
 	if _smoke:
 		game_sync.local_input_source = func() -> int: return InputBits.RIGHT
 		var timer: SceneTreeTimer = get_tree().create_timer(SMOKE_TIMEOUT_SEC)
@@ -251,6 +255,7 @@ func _on_start_requested() -> void:
 
 
 func _on_game_started(level_index: int) -> void:
+	_level_index = level_index
 	_level_scene = load(LevelList.PATHS[level_index])
 	var level_root: Node = _level_scene.instantiate()
 	var level: Level = LevelLoader.from_scene_root(level_root)
@@ -261,6 +266,21 @@ func _on_game_started(level_index: int) -> void:
 		game_sync.start_as_client()
 	state = State.PLAYING
 	_show_world()
+
+
+## Host : niveau suivant s'il existe, sinon fin de partie.
+func _on_level_finished() -> void:
+	var next_index: int = _level_index + 1
+	if next_index < LevelList.PATHS.size():
+		session.start_game(next_index)
+	else:
+		session.finish_game()
+
+
+func _on_game_finished() -> void:
+	game_sync.stop()
+	state = State.LOBBY
+	_show_lobby(STATUS_LEVEL_CLEAR)
 
 
 ## En smoke : quitte avec le code d'échec. Sinon : retour au menu avec le message.

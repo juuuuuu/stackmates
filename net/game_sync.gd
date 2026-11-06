@@ -1,16 +1,21 @@
 class_name GameSync
 extends Node
 ## Synchronise la partie. Le host fait tourner la simulation à chaque tick
-## physique et diffuse un snapshot tous les SNAPSHOT_INTERVAL_TICKS. Un client
-## envoie ses inputs à chaque tick et interpole les snapshots reçus.
+## physique, diffuse ses événements en reliable et un snapshot tous les
+## SNAPSHOT_INTERVAL_TICKS. Un client envoie ses inputs à chaque tick et
+## interpole les snapshots reçus.
 
 signal snapshot_received(s: Snapshot)
+signal level_event(kind: int, slot: int)
+signal level_restarted
+signal level_finished
 
 const SNAPSHOT_INTERVAL_TICKS: int = 2
 const HOST_PEER_ID: int = 1
 
 var session: Session
 var simulation: Simulation
+var director: LevelDirector
 var buffer: SnapshotBuffer
 var snapshots_sent: int = 0
 var inputs_received: int = 0
@@ -25,6 +30,7 @@ func start_as_host(level: Level, slots: Array[int]) -> void:
 	simulation = Simulation.new(level)
 	for slot: int in slots:
 		simulation.add_player(slot)
+	director = LevelDirector.new()
 	buffer = null
 	snapshots_sent = 0
 	inputs_received = 0
@@ -35,6 +41,7 @@ func start_as_host(level: Level, slots: Array[int]) -> void:
 
 func start_as_client() -> void:
 	simulation = null
+	director = null
 	buffer = SnapshotBuffer.new()
 	_clock = RenderClock.new()
 	_local_tick = 0
@@ -44,6 +51,7 @@ func start_as_client() -> void:
 func stop() -> void:
 	_running = false
 	simulation = null
+	director = null
 	buffer = null
 
 
@@ -73,18 +81,33 @@ func _physics_process(_delta: float) -> void:
 func _host_tick(bits: int) -> void:
 	simulation.set_input(session.local_slot, bits)
 	simulation.step()
+	for event: SimEvent in simulation.take_events():
+		director.on_event(event, simulation.tick)
+		_level_event.rpc(event.kind, event.slot)
+	match director.poll(simulation.tick):
+		LevelDirector.Action.RESTART:
+			simulation.restart()
+			_level_restarted.rpc()
+		LevelDirector.Action.NEXT_LEVEL:
+			level_finished.emit()
+			return
 	if simulation.tick % SNAPSHOT_INTERVAL_TICKS == 0:
 		_receive_snapshot.rpc(SnapshotCodec.encode(Snapshot.from_simulation(simulation)))
 		snapshots_sent += 1
 
 
-## Retire de la simulation les players qui ont quitté la session.
+## Retire de la simulation les players qui ont quitté la session, et fait
+## recommencer le niveau aux autres.
 func _on_roster_changed(roster: Dictionary) -> void:
 	if simulation == null:
 		return
+	var removed: bool = false
 	for player: PlayerState in simulation.players.duplicate():
 		if not roster.has(player.slot):
 			simulation.remove_player(player.slot)
+			removed = true
+	if removed:
+		director.on_player_left(simulation.tick)
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
@@ -105,3 +128,15 @@ func _receive_snapshot(bytes: PackedByteArray) -> void:
 	var s: Snapshot = SnapshotCodec.decode(bytes)
 	if s != null and buffer.push(s):
 		snapshot_received.emit(s)
+
+
+@rpc("authority", "call_local", "reliable")
+func _level_event(kind: int, slot: int) -> void:
+	level_event.emit(kind, slot)
+
+
+@rpc("authority", "call_local", "reliable")
+func _level_restarted() -> void:
+	if buffer != null:
+		buffer = SnapshotBuffer.new()
+	level_restarted.emit()
