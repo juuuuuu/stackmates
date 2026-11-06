@@ -53,6 +53,8 @@ géant, chrono, score, vies.
 - Causes : sortir du niveau par le bas, toucher la zone létale d'une tuile
   `spike` (la base de la tuile, 10 px sur 10 : un marcheur meurt, un sauteur
   passe dès 10 px de hauteur).
+- La zone létale laisse une fenêtre de départ de saut d'au moins 12 `ticks`
+  (200 ms) devant un `spike` isolé, pour un `client` en retard.
 - Un joueur meurt : bandeau « X died » pendant 1 s, puis le niveau recommence
   pour tout le monde. Pas de vies, pas de compteur.
 
@@ -113,6 +115,10 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   api.ipify.org, avec bouton copier).
 - Secours documentés pour les joueurs : port forwarding manuel, puis VPN gratuit
   entre amis (ZeroTier ou Tailscale).
+- Le mapping `UPnP` est retiré quand le `host` quitte le lobby ou la partie ;
+  un plantage le laisse en place, sans danger (même port réutilisé). Le lobby
+  affiche « IP publique : recherche... » jusqu'à la réponse d'ipify, puis
+  l'adresse ou « inconnue ».
 - Pas de `relay server`, pas de `host migration`, pas d'anti-triche.
 
 ### Autorité et cadence
@@ -151,6 +157,8 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   autres. Le `host` qui tombe : tout le monde revient au menu avec un message.
 - Pseudo de 1 à 12 caractères. Pseudo et dernière IP sauvés dans
   `user://settings.cfg`.
+- Un port hors 1 à 65535 est refusé avec un message ; un champ vide vaut 28015.
+  Un pseudo contenant un caractère de contrôle est refusé par le `host`.
 
 ## Niveaux
 
@@ -165,6 +173,8 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   saut jusqu'à la porte, 2 `stack` obligatoire (rebord trop haut), 3 `spikes` et
   timing, 4 `push chain`, 5 combinaison.
 - Pas de sauvegarde de progression : le `host` choisit le niveau de départ.
+- Règle de placement : aucun `spike` à moins de 6 tuiles d'un spawn, pour qu'une
+  poussée au départ laisse une seconde de réaction.
 
 ## Art et audio
 
@@ -176,7 +186,7 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   reproductibles et remplaçables par du vrai pixel art.
 - Effets sonores (saut, mort, clé, porte, victoire) et boucle musicale générés
   par `tools/gen_audio.py` : des placeholders remplaçables. Deux curseurs de
-  volume dans les options.
+  volume dans les options. Huit lecteurs d'effets, un par joueur possible.
 
 ## Qualité et tests
 
@@ -206,6 +216,8 @@ Voir `docs/adr/0002-host-authoritative-sans-prediction.md` et
   dans le code. Page itch.io en anglais.
 - Logs dans `user://logs`. `export_presets.cfg` commité. `.gitignore` standard
   Godot.
+- Les réglages sont écrits sur disque à la fermeture de l'écran Options et au
+  basculement plein écran, pas à chaque cran de curseur.
 
 ## Distribution
 
@@ -239,6 +251,8 @@ documentation d'installation et page itch.io).
 - Jalon 2 : cinq niveaux, lobby complet, audio, options.
 - Jalon 3 : publication itch.io et documentation d'installation (SmartScreen,
   Gatekeeper, port forwarding).
+- Jalon 4 : finitions avant sortie publique (mineurs des revues 0 à 3 qui
+  touchent les joueurs, robustesse CI).
 - Pas de date imposée. Le jalon 0 passe en premier car il porte le risque
   principal (réseau, NAT, exports).
 
