@@ -47,17 +47,6 @@ func test_facing_follows_last_direction() -> void:
 	assert_false(sim.get_player(1).facing_left)
 
 
-func test_two_players_same_spawn_move_independently() -> void:
-	var sim: Simulation = _sim(["S....", "#####"])
-	sim.add_player(1)
-	sim.add_player(2)
-	sim.set_input(1, InputBits.RIGHT)
-	for i: int in 10:
-		sim.step()
-	assert_almost_eq(sim.get_player(1).position.x, 16.0, 0.01)
-	assert_eq(sim.get_player(2).position.x, 0.0)
-
-
 func test_player_leaves_grid_without_error() -> void:
 	var sim: Simulation = _sim(["S..", "###"])
 	sim.add_player(1)

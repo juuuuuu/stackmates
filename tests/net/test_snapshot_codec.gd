@@ -44,15 +44,15 @@ func test_decode_bad_count_returns_null() -> void:
 
 
 func test_from_simulation() -> void:
-	var sim: Simulation = Simulation.new(Level.from_rows(["S.S", "###"]))
+	var sim: Simulation = Simulation.new(Level.from_rows(["S..S", "####"]))
 	sim.add_player(1)
-	sim.add_player(3)
-	sim.set_input(3, InputBits.LEFT)
+	sim.add_player(2)
+	sim.set_input(2, InputBits.LEFT)
 	for i: int in 3:
 		sim.step()
 	var s: Snapshot = Snapshot.from_simulation(sim)
 	assert_eq(s.tick, 3)
-	assert_eq(s.slots, PackedInt32Array([1, 3]))
+	assert_eq(s.slots, PackedInt32Array([1, 2]))
 	assert_eq(s.positions[0], sim.get_player(1).position)
 	assert_true(bool(s.flags[1] & Snapshot.FLAG_FACING_LEFT))
 	assert_true(bool(s.flags[0] & Snapshot.FLAG_ON_GROUND))

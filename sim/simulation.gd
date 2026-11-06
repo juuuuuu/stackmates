@@ -101,7 +101,7 @@ func step() -> void:
 		_apply_vertical_intent(player, _input_of(player.slot))
 	for player: PlayerState in active:
 		_apply_horizontal_intent(player, _input_of(player.slot))
-		_move_x(player, player.velocity.x * SimConstants.DT)
+		_move_x(player, player.velocity.x * SimConstants.DT, [])
 	for player: PlayerState in active:
 		_move_y(player, player.velocity.y * SimConstants.DT)
 	if _apply_deaths(active):
@@ -177,27 +177,50 @@ func _apply_horizontal_intent(player: PlayerState, input: int) -> void:
 		player.facing_left = false
 
 
-## Déplace le player en x, le ramène au bord de la tile en cas de collision,
-## et rend le déplacement réel.
-func _move_x(player: PlayerState, dx: float) -> float:
+## Déplace le player en x contre les tiles et les autres players au sol, qu'il
+## pousse en chaîne (push chain). Un player déjà dans la chaîne (pushed)
+## n'est pas repoussé. Rend le déplacement réel.
+func _move_x(player: PlayerState, dx: float, pushed: Array[PlayerState]) -> float:
 	if dx == 0.0:
 		return 0.0
 	var start_x: float = player.position.x
 	player.position.x += dx
-	if level.grid.overlaps_solid(player.rect()):
-		if dx > 0.0:
-			var right_edge: float = (
-				player.position.x + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
-			)
-			var tile_x: int = floori(right_edge / SimConstants.TILE_SIZE)
-			player.position.x = tile_x * SimConstants.TILE_SIZE - SimConstants.PLAYER_SIZE
-		else:
-			var tile_x: int = floori(player.position.x / SimConstants.TILE_SIZE)
-			player.position.x = (tile_x + 1) * SimConstants.TILE_SIZE
-		player.velocity.x = 0.0
+	_resolve_tiles_x(player, dx)
+	if player.on_ground:
+		for other: PlayerState in players:
+			if other == player or not other.is_active() or not other.on_ground:
+				continue
+			if pushed.has(other) or not _overlaps(player.rect(), other.rect()):
+				continue
+			var overlap: float = player.position.x + SimConstants.PLAYER_SIZE - other.position.x
+			if dx < 0.0:
+				overlap = player.position.x - (other.position.x + SimConstants.PLAYER_SIZE)
+			var chain: Array[PlayerState] = pushed.duplicate()
+			chain.append(player)
+			var moved: float = _move_x(other, overlap, chain)
+			if absf(moved) < absf(overlap) - TileGrid.EDGE_EPSILON:
+				if dx > 0.0:
+					player.position.x = other.position.x - SimConstants.PLAYER_SIZE
+				else:
+					player.position.x = other.position.x + SimConstants.PLAYER_SIZE
+				player.velocity.x = 0.0
 	var actual: float = player.position.x - start_x
 	player.last_dx += actual
 	return actual
+
+
+## Ramène le player au bord de la tile solide qu'il recouvre, s'il y en a une.
+func _resolve_tiles_x(player: PlayerState, dx: float) -> void:
+	if not level.grid.overlaps_solid(player.rect()):
+		return
+	if dx > 0.0:
+		var right_edge: float = player.position.x + SimConstants.PLAYER_SIZE - TileGrid.EDGE_EPSILON
+		var tile_x: int = floori(right_edge / SimConstants.TILE_SIZE)
+		player.position.x = tile_x * SimConstants.TILE_SIZE - SimConstants.PLAYER_SIZE
+	else:
+		var tile_x: int = floori(player.position.x / SimConstants.TILE_SIZE)
+		player.position.x = (tile_x + 1) * SimConstants.TILE_SIZE
+	player.velocity.x = 0.0
 
 
 ## Déplace le player en y. Vers le bas, une collision pose le player sur la
