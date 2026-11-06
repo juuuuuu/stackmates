@@ -282,6 +282,9 @@ func _toggle_fullscreen() -> void:
 	_settings.fullscreen = not _settings.fullscreen
 	_set_fullscreen(_settings.fullscreen)
 	_persist_settings()
+	var options: OptionsScreen = _screen as OptionsScreen
+	if options != null:
+		options.set_fullscreen(_settings.fullscreen)
 
 
 func _set_fullscreen(enabled: bool) -> void:
@@ -308,20 +311,20 @@ func _on_options_requested() -> void:
 	_show_options()
 
 
+## Les réglages sont écrits ici, pas à chaque cran de curseur.
 func _on_options_closed() -> void:
+	_persist_settings()
 	_show_menu("")
 
 
 func _on_music_changed(linear: float) -> void:
 	_settings.music_volume = linear
 	audio.set_music_volume(linear)
-	_persist_settings()
 
 
 func _on_sfx_changed(linear: float) -> void:
 	_settings.sfx_volume = linear
 	audio.set_sfx_volume(linear)
-	_persist_settings()
 
 
 func _on_fullscreen_changed(enabled: bool) -> void:

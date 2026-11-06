@@ -197,3 +197,43 @@ func test_host_without_probes_shows_public_ip_unknown() -> void:
 	main._on_host_requested(TEST_PORT, "Ju")
 	var lobby: Lobby = main.screen_root.get_node("Lobby")
 	assert_eq(lobby.public_ip_label.text, "Public IP: unknown")
+
+
+func test_slider_changes_are_saved_on_options_close() -> void:
+	# Repart d'un fichier absent : un run précédent peut avoir écrit 0.25.
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("user://test_main_flow_settings.cfg"))
+	var main: Main = _main()
+	main._on_options_requested()
+	var options: OptionsScreen = main.screen_root.get_node("Options")
+	options.music_slider.value = 0.25
+	var on_disk: SettingsStore = SettingsStore.load_from(main.settings_path)
+	assert_ne(on_disk.music_volume, 0.25, "pas encore écrit")
+	options.back_button.pressed.emit()
+	on_disk = SettingsStore.load_from(main.settings_path)
+	assert_eq(on_disk.music_volume, 0.25, "écrit à la fermeture")
+
+
+func test_f11_in_options_updates_the_checkbox() -> void:
+	var main: Main = _main()
+	main._on_options_requested()
+	var options: OptionsScreen = main.screen_root.get_node("Options")
+	var before: bool = options.fullscreen_check.button_pressed
+	_press(main, "toggle_fullscreen")
+	assert_eq(options.fullscreen_check.button_pressed, not before)
+	_press(main, "toggle_fullscreen")
+
+
+func test_pause_menu_blocks_movement_input() -> void:
+	var main: Main = _main()
+	main._on_host_requested(TEST_PORT, "Ju")
+	main._on_start_requested(0)
+	Input.action_press("move_right")
+	_press(main, "ui_cancel")
+	assert_not_null(main.pause_menu)
+	var blocked_bits: int = main.game_sync.local_input_source.call()
+	assert_eq(blocked_bits, 0, "bloqué par le menu")
+	_press(main, "ui_cancel")
+	var released_bits: int = main.game_sync.local_input_source.call()
+	assert_eq(released_bits, InputBits.RIGHT, "libéré")
+	Input.action_release("move_right")
+	main._on_pause_leave()

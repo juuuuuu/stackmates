@@ -26,4 +26,9 @@ func _ready() -> void:
 func set_settings(settings: SettingsStore) -> void:
 	music_slider.set_value_no_signal(settings.music_volume)
 	sfx_slider.set_value_no_signal(settings.sfx_volume)
-	fullscreen_check.set_pressed_no_signal(settings.fullscreen)
+	set_fullscreen(settings.fullscreen)
+
+
+## Reflète un basculement fait ailleurs (F11) sans émettre de changement.
+func set_fullscreen(enabled: bool) -> void:
+	fullscreen_check.set_pressed_no_signal(enabled)

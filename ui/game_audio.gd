@@ -16,7 +16,8 @@ const SOUNDS: Dictionary[String, String] = {
 	"victory": "res://assets/audio/victory.wav",
 }
 const MUSIC_PATH: String = "res://assets/audio/music.wav"
-const SFX_PLAYERS: int = 6
+## Un lecteur d'effets par joueur possible : huit sauts au même tick s'entendent.
+const SFX_PLAYERS: int = SimConstants.MAX_PLAYERS
 
 ## Le dernier son demandé, pour les tests.
 var last_played: String = ""

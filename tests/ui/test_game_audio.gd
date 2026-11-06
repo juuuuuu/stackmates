@@ -41,3 +41,7 @@ func test_music_loops_on_its_full_length() -> void:
 	assert_eq(stream.loop_mode, AudioStreamWAV.LOOP_FORWARD)
 	assert_eq(stream.loop_end, expected)
 	assert_gt(stream.get_length(), 10.0)
+
+
+func test_sfx_player_count_covers_max_players() -> void:
+	assert_true(GameAudio.SFX_PLAYERS >= SimConstants.MAX_PLAYERS)

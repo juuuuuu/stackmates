@@ -98,3 +98,16 @@ func test_local_marker_follows_then_hides() -> void:
 	view._process(3.5)
 	view.show_frame(_frame([[2, Vector2(40, 60), 0]]))
 	assert_false(view.local_marker_visible())
+
+
+func test_local_marker_sits_above_the_sprite() -> void:
+	var view: WorldView = _view()
+	view.set_local_slot(2)
+	view.show_frame(_frame([[2, Vector2(40, 60), 0]]))
+	var marker: Label = view.get_node("LocalMarker")
+	var sprite: Sprite2D = view.get_node("Players/Player2")
+	var marker_bottom: float = marker.position.y + marker.get_minimum_size().y
+	assert_true(
+		marker_bottom <= sprite.position.y,
+		"bas du marqueur %f, haut du sprite %f" % [marker_bottom, sprite.position.y]
+	)
